@@ -848,7 +848,7 @@ hash y habilitó la siguiente fase de enumeración y movimiento lateral dentro d
 
 <img src="assets/26.png">
 
-Gaining Access as MS01$
+<p align="center"><strong><u>Gaining Access as MS01$</u></strong></p>
 
 Con  el  hash  NTLM  de  brandon.keywarp  ya  en  nuestro  poder,  se  procedió  a  realizar  una  serie  de
 comprobaciones  orientadas  a  identificar  configuraciones  de  dominio  susceptibles  de  abuso.  Entre  ellas
@@ -856,6 +856,8 @@ destacó una especialmente crítica: la desactivación de LDAP Signing en el con
 configuración, aún presente en numerosos entornos corporativos, abre la puerta a ataques de NTLM relay
 siempre que se consiga forzar la autenticación NTLM de un usuario o servicio hacia un endpoint controlado
 por el atacante.
+
+<img src="assets/27.png">
 
 La lógica del ataque es clara: si el controlador de dominio acepta solicitudes LDAP sin firma, cualquier
 credencial  NTLM  capturada  mediante  coerción  puede  ser  retransmitida  directamente  al  DC  para
@@ -878,31 +880,29 @@ ntlmrelayx de Impacket. Antes de iniciar el ataque, fue necesario exponer nuestr
 de dominio a través del túnel previamente establecido con Chisel, habilitando así la visibilidad del host
 atacante dentro del segmento interno.
 
-24 de febrero de 2025
-
-12
-
 Con  el  túnel  operativo,  se  lanzó  ntlmrelayx  con  soporte  para  SMB2,  configurado  para  retransmitir
 cualquier  autenticación  NTLM  entrante  hacia  el  servicio  LDAP  del  controlador  de  dominio.  Este  paso
 constituye la base del ataque: si se consigue inducir una autenticación NTLM desde cualquier máquina del
 dominio  hacia  nuestro  endpoint,  ntlmrelayx  podrá  retransmitirla  al  DC  y  obtener  acceso  LDAP  bajo  la
 identidad del usuario víctima.
 
+<img src="assets/28.png">
+
 Tras  configurar  ntlmrelayx  con  soporte  SMB2  a  través  del  túnel  establecido,  se  procedió  a  ejecutar
 PetitPotam, especificando nuestra dirección IP como listener y habilitando todas las pipes disponibles para
 maximizar las posibilidades de coerción.
+
+<img src="assets/28.png">
 
 El análisis de la salida generada por ntlmrelayx confirmó la hipótesis inicial: el ataque fracasó debido a
 que el SMB Signing se encuentra habilitado en el controlador de dominio, lo que impide la retransmisión
 de autenticaciones NTLM capturadas.
 
-24 de febrero de 2025
-
-13
-
 A modo de referencia, si el mismo intento de autenticación se dirigiera hacia MS01, el ataque sería viable,
 ya  que  dicho  host  no  implementa  SMB  Signing;  sin  embargo,  los  machine  accounts  no  pueden  iniciar
 sesiones interactivas sobre recursos de red, por lo que este vector no resulta aprovechable.
+
+<img src="assets/29.png">
 
 Ante esta limitación, el foco estratégico se desplazó nuevamente hacia MS01, un sistema ya comprometido,
 pero  sobre  el  cual  aún  no  se  disponía  de  privilegios  elevados.  Una  vía  factible  para  obtener  control
