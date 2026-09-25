@@ -280,7 +280,7 @@ que  permita  Client Authentication  y  que  sea  accesible  para  miembros  de 
 empleó Certify.exe, una herramienta diseñada para auditar configuraciones de AD CS y detectar plantillas
 susceptibles de abuso.
 
-```python
+```text
 PS C:\xampp\htdocs\herramientas> .\Certify.exe find /enrollable
 
    _____          _   _  __
