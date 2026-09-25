@@ -34,7 +34,7 @@ en el entorno.
 La dirección IP de la máquina víctima es 10.129.231.20. Por tanto, envié 5 trazas ICMP para verificar que
 existe conectividad entre las dos máquinas.
 
-<img src="assets/1.jpg">
+<img src="assets/1.png">
 
 Una vez que identificada la dirección IP de la máquina objetivo, utilicé el comando nmap -p- -sS -sC -sV
 --min-rate  5000  -vvv  -Pn  10.129.231.20  -oN  scanner_mist  para  descubrir  los  puertos  abiertos  y  sus
@@ -47,7 +47,7 @@ versiones:
 - (--min-rate 5000): ajusta la velocidad de envío a 5000 paquetes por segundo.
 - (-Pn): asume que la máquina a analizar está activa y omite la fase de descubrimiento de hosts.
 
-<img src="assets/2.jpg">
+<img src="assets/2.png">
 
 El  análisis  inicial  del  servicio  HTTP  revela  la  exposición  del  puerto  80,  donde  se  ejecuta  un  servidor
 Apache 2.4.52 desplegado sobre un entorno Windows. La enumeración pasiva y activa del contenido web
