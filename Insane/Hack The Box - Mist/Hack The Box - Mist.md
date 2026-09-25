@@ -29,48 +29,25 @@ permitió  recuperar  el  hash  del  Domain Administrator.  Con  ello  se  conso
 infraestructura de Active Directory y se demostró el impacto real de las configuraciones débiles presentes
 en el entorno.
 
-24 de febrero de 2025
-
-1
+<p align="center"><strong><u>Enumeración</u></strong></p>
 
 La dirección IP de la máquina víctima es 10.129.231.20. Por tanto, envié 5 trazas ICMP para verificar que
 existe conectividad entre las dos máquinas.
 
-Enumeración
+<img src="assets/1.jpg">
 
 Una vez que identificada la dirección IP de la máquina objetivo, utilicé el comando nmap -p- -sS -sC -sV
 --min-rate  5000  -vvv  -Pn  10.129.231.20  -oN  scanner_mist  para  descubrir  los  puertos  abiertos  y  sus
 versiones:
 
-
-
+- (-p-): realiza un escaneo de todos los puertos abiertos.
+- (-sS): utilizado para realizar un escaneo TCP SYN, siendo este tipo de escaneo el más común y rápido, además de ser relativamente sigiloso ya que no llega a completar las conexiones TCP. Habitualmente se conoce esta técnica como sondeo de medio abierto (half open). Este sondeo consiste en enviar un paquete SYN, si recibe un paquete SYN/ACK indica que el puerto está abierto, en caso contrario, si recibe un paquete RST (reset), indica que el puerto está cerrado y si no recibe respuesta, se marca como filtrado.
+- (-sC): utiliza los scripts por defecto para descubrir información adicional y posibles vulnerabilidades. Esta opción es equivalente a --script=default. Es necesario tener en cuenta que algunos de estos scripts se consideran intrusivos ya que podría ser detectado por sistemas de detección de intrusiones, por lo que no se deben ejecutar en una red sin permiso.
+- (-sV): Activa la detección de versiones. Esto es muy útil para identificar posibles vectores de ataque si la versión de algún servicio disponible es vulnerable. 
+- (--min-rate 5000): ajusta la velocidad de envío a 5000 paquetes por segundo.
+- (-Pn): asume que la máquina a analizar está activa y omite la fase de descubrimiento de hosts.
 
-
-
-
-
-
-
-
-(-p-): realiza un escaneo de todos los puertos abiertos.
-(-sS): utilizado para realizar un escaneo TCP SYN, siendo este tipo de escaneo el más común y rápido,
-además de ser relativamente sigiloso ya que no llega a completar las conexiones TCP. Habitualmente
-se conoce esta técnica como sondeo de medio abierto (half open). Este sondeo consiste en enviar un
-paquete SYN, si recibe un paquete SYN/ACK indica que el puerto está abierto, en caso contrario, si
-recibe un paquete RST (reset), indica que el puerto está cerrado y si no recibe respuesta, se marca
-como filtrado.
-(-sC): utiliza los scripts por defecto para descubrir información adicional y posibles vulnerabilidades.
-Esta opción es equivalente a --script=default. Es necesario tener en cuenta que algunos de estos scripts
-se consideran intrusivos ya que podría ser detectado por sistemas de detección de intrusiones, por lo
-que no se deben ejecutar en una red sin permiso.
-(-sV): Activa la detección de versiones. Esto es muy útil para identificar posibles vectores de ataque
-si la versión de algún servicio disponible es vulnerable.
-(--min-rate 5000): ajusta la velocidad de envío a 5000 paquetes por segundo.
-(-Pn): asume que la máquina a analizar está activa y omite la fase de descubrimiento de hosts.
-
-24 de febrero de 2025
-
-2
+<img src="assets/2.jpg">
 
 El  análisis  inicial  del  servicio  HTTP  revela  la  exposición  del  puerto  80,  donde  se  ejecuta  un  servidor
 Apache 2.4.52 desplegado sobre un entorno Windows. La enumeración pasiva y activa del contenido web
