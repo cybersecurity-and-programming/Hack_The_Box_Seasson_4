@@ -1,20 +1,6 @@
-Hack The Box - Mist
-Windows
-Insane
-
-Sistema Operativo:
-Dificultad:
-Release:
-
-30/03/2024
-
-Skills Learned
-
-  Advanced ADCS exploitation
-  LDAP and NTLM relay attacks
-  Abusing WebDAV
-  Kerberos S4U exploitation with shadow credentials
-  BloodHound and Certipy usage
+<p align="center">
+<img src="assets/0.png" width="1000">
+</p>
 
 El presente documento describe, con un enfoque técnico y metodológico, el compromiso completo de una
 infraestructura corporativa basada en Active Directory, articulado a través de múltiples vectores de ataque
