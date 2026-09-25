@@ -157,7 +157,7 @@ y la consolidación del acceso.
 
 <img src="assets/13.png">
 
-Shell as Brandon.Keywarp
+<p align="center"><strong><u>Shell as Brandon.Keywarp</u></strong></p>
 
 Tras  consolidar  la  reverse  shell  inicial,  se  procedió  a  una  enumeración  sistemática  del  entorno
 comprometido. La ejecución de ipconfig reveló que el host operaba bajo la dirección 192.168.100.101, con
@@ -172,6 +172,8 @@ encontramos  ante  un  dominio  corporativo  plenamente  operativo.  Dado  que  
 svc_web, no forma parte del dominio, resultaba evidente la necesidad de obtener acceso a un usuario con
 mayor integración en el ecosistema AD para avanzar en la cadena de compromiso.
 
+<img src="assets/14.png">
+
 Durante la enumeración del sistema de archivos, se identificó un directorio inusual en la raíz del volumen
 C:\ denominado Common Applications. Su contenido resultó especialmente interesante: una colección de
 accesos directos de Windows (.lnk) sobre los cuales el usuario actual disponía de permisos de escritura.
@@ -179,42 +181,46 @@ Este vector es particularmente significativo, ya que los accesos directos pueden
 el ejecutable subyacente que invocan, convirtiéndolos en un mecanismo viable para secuestro de ejecución
 (execution hijacking).
 
+<img src="assets/15.png">
+
 Una revisión de documentación técnica reveló que los accesos directos pueden ser modificados mediante
 PowerShell para redefinir el binario objetivo, permitiendo sustituir la aplicación legítima por un payload
 controlado por  el atacante. Siguiendo esta técnica,  se  seleccionó el  acceso directo  Calculator.lnk como
 candidato  para  la  sustitución,  configurándolo  para  invocar un  script  de  PowerShell  con  reverse  shell,
 análogo al empleado en la fase inicial de compromiso.
 
-24 de febrero de 2025
-
-7
+<img src="assets/16.png">
 
 Tras un periodo de espera razonable —presumiblemente hasta que un usuario legítimo interactuó con el
 acceso directo manipulado— se estableció una nueva conexión en nuestro listener. Esta vez, la sesión se
 ejecutaba bajo el contexto del usuario brandon.keywarp, un usuario perteneciente al dominio y, por tanto,
 con un nivel de integración significativamente superior dentro del entorno corporativo.
 
-Análisis de Active Directory
+<img src="assets/17.png">
+
+<p align="center"><strong><u>Análisis de Active Directory</u></strong></p>
 
 Con el compromiso de un usuario perteneciente al dominio —brandon.keywarp— se abrió la posibilidad
 de realizar una enumeración estructural del entorno Active Directory. Para ello, se optó por emplear
 BloodHound, una herramienta ampliamente utilizada para el análisis de relaciones de privilegio, rutas de
 ataque y configuraciones delegadas dentro de dominios Windows.
 
+<img src="assets/18.png">
+
 El  primer  paso  consistió  en  transferir  y  ejecutar  SharpHound  en  el  host  comprometido,  con  el  fin  de
 recolectar información sobre usuarios, grupos, ACLs, políticas y objetos del dominio. Una vez completada
 la fase de recolección, el archivo resultante fue exfiltrado hacia la máquina del atacante utilizando el propio
 navegador web, aprovechando la conectividad ya establecida.
 
-24 de febrero de 2025
-
-8
+<img src="assets/19.png">
 
 Con  los  datos  cargados  en  BloodHound,  se  procedió  a  analizar  las  capacidades  del  usuario
 brandon.keywarp dentro del dominio. La enumeración inicial reveló un hallazgo significativo: el usuario,
 como miembro del grupo Authenticated Users, posee permisos para solicitar certificados en la Autoridad
 Certificadora  MIST-DC01-CA.  Este  tipo  de  permisos  puede  derivar  en  escenarios  de  abuso  de  PKI,
 especialmente si existen plantillas de certificado mal configuradas o susceptibles de escalada.
+
+<img src="assets/20.png">
 
 Paralelamente, se identificó un activo adicional aún no analizado: el host 192.168.100.100, previamente
 observado como gateway de MS01. Para profundizar en su estudio, se decidió establecer un túnel mediante
@@ -235,19 +241,19 @@ descubrimiento constituye un vector de alto valor estratégico, ya que permite i
 sometidos a análisis antimalware, facilitando la persistencia y la ejecución de payloads más complejos en
 fases posteriores.
 
+<img src="assets/21.png">
+
 Con  la  ruta  excluida  de  Windows  Defender  ya  identificada,  procedimos  a  cargar  Chisel  en  el  host
 comprometido y establecer un túnel inverso entre MS01 y nuestra máquina de control. Este canal permitió
 enrutar  tráfico  a  través  del  sistema  comprometido  y  extender  nuestra  superficie  de  enumeración  hacia
 segmentos internos de la red.
 
-24 de febrero de 2025
-
-9
-
 Una vez operativo el túnel, se ejecutó netexec smb a través de ProxyChains, lo que reveló que el sistema
 192.168.100.100  correspondía  al  controlador  de  dominio  del  entorno.  Este  hallazgo  confirmó  la
 arquitectura  sospechada  durante  las  fases  iniciales  y  subrayó  la  necesidad  de  obtener  credenciales  o
 artefactos que permitieran autenticarnos de forma legítima frente a los servicios del dominio.
+
+<img src="assets/22.png">
 
 Dado  que  la  cuenta  comprometida  brandon.keywarp  pertenece  al  grupo  Domain  Users,  y  que
 BloodHound había identificado permisos de certificate enrollment sobre la CA MIST-DC01-CA, se abrió
@@ -274,9 +280,404 @@ que  permita  Client Authentication  y  que  sea  accesible  para  miembros  de 
 empleó Certify.exe, una herramienta diseñada para auditar configuraciones de AD CS y detectar plantillas
 susceptibles de abuso.
 
-24 de febrero de 2025
+```python
+PS C:\xampp\htdocs\herramientas> .\Certify.exe find /enrollable
 
-10
+   _____          _   _  __
+  / ____|        | | (_)/ _|
+ | |     ___ _ __| |_ _| |_ _   _
+ | |    / _ \ '__| __| |  _| | | |
+ | |___|  __/ |  | |_| | | | |_| |
+  \_____\___|_|   \__|_|_|  \__, |
+                             __/ |
+                            |___./
+  v1.1.0
+
+[*] Action: Find certificate templates
+[*] Using the search base 'CN=Configuration,DC=mist,DC=htb'
+
+[*] Listing info about the Enterprise CA 'mist-DC01-CA'
+
+    Enterprise CA Name            : mist-DC01-CA
+    DNS Hostname                  : DC01.mist.htb
+    FullName                      : DC01.mist.htb\mist-DC01-CA
+    Flags                         : SUPPORTS_NT_AUTHENTICATION, CA_SERVERTYPE_ADVANCED
+    Cert SubjectName              : CN=mist-DC01-CA, DC=mist, DC=htb
+    Cert Thumbprint               : A515DF0E980933BEC55F89DF02815E07E3A7FE5E
+    Cert Serial                   : 3BF0F0DDF3306D8E463B218B7DB190F0
+    Cert Start Date               : 2/15/2024 7:07:23 AM
+    Cert End Date                 : 2/15/2123 7:17:23 AM
+    Cert Chain                    : CN=mist-DC01-CA,DC=mist,DC=htb
+    UserSpecifiedSAN              : Disabled
+    CA Permissions                :
+      Owner: BUILTIN\Administrators        S-1-5-32-544
+
+      Access Rights                                     Principal
+
+      Allow  Enroll                                     NT AUTHORITY\Authenticated UsersS-1-5-11
+      Allow  ManageCA, ManageCertificates               BUILTIN\Administrators        S-1-5-32-544
+      Allow  ManageCA, ManageCertificates               MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+      Allow  ManageCA, ManageCertificates               MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+    Enrollment Agent Restrictions : None
+
+[*] Available Certificates Templates :
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : User
+    Schema Version                        : 1
+    Validity Period                       : 1 year
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_UPN, SUBJECT_ALT_REQUIRE_EMAIL, SUBJECT_REQUIRE_EMAIL, SUBJECT_REQUIRE_DIRECTORY_PATH
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, PUBLISH_TO_DS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Encrypting File System, Secure Email
+    mspki-certificate-application-policy  : <null>
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Users             S-1-5-21-1045809509-3006658589-2426055941-513
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : EFS
+    Schema Version                        : 1
+    Validity Period                       : 1 year
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_UPN, SUBJECT_REQUIRE_DIRECTORY_PATH
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, PUBLISH_TO_DS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Encrypting File System
+    mspki-certificate-application-policy  : <null>
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Users             S-1-5-21-1045809509-3006658589-2426055941-513
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : Administrator
+    Schema Version                        : 1
+    Validity Period                       : 1 year
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_UPN, SUBJECT_ALT_REQUIRE_EMAIL, SUBJECT_REQUIRE_EMAIL, SUBJECT_REQUIRE_DIRECTORY_PATH
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, PUBLISH_TO_DS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Encrypting File System, Microsoft Trust List Signing, Secure Email
+    mspki-certificate-application-policy  : <null>
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : EFSRecovery
+    Schema Version                        : 1
+    Validity Period                       : 5 years
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_UPN, SUBJECT_REQUIRE_DIRECTORY_PATH
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : File Recovery
+    mspki-certificate-application-policy  : <null>
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : Machine
+    Schema Version                        : 1
+    Validity Period                       : 1 year
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_DNS, SUBJECT_REQUIRE_DNS_AS_CN
+    mspki-enrollment-flag                 : AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Server Authentication
+    mspki-certificate-application-policy  : <null>
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Computers         S-1-5-21-1045809509-3006658589-2426055941-515
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : WebServer
+    Schema Version                        : 1
+    Validity Period                       : 2 years
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : ENROLLEE_SUPPLIES_SUBJECT
+    mspki-enrollment-flag                 : NONE
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Server Authentication
+    mspki-certificate-application-policy  : <null>
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : SubCA
+    Schema Version                        : 1
+    Validity Period                       : 5 years
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : ENROLLEE_SUPPLIES_SUBJECT
+    mspki-enrollment-flag                 : NONE
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : <null>
+    mspki-certificate-application-policy  : <null>
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : DomainControllerAuthentication
+    Schema Version                        : 2
+    Validity Period                       : 75 years
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_DNS
+    mspki-enrollment-flag                 : AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Server Authentication, Smart Card Logon
+    mspki-certificate-application-policy  : Client Authentication, Server Authentication, Smart Card Logon
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Controllers       S-1-5-21-1045809509-3006658589-2426055941-516
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+                                      MIST\Enterprise Read-only Domain ControllersS-1-5-21-1045809509-3006658589-2426055941-498
+                                      NT AUTHORITY\ENTERPRISE DOMAIN CONTROLLERSS-1-5-9
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : DirectoryEmailReplication
+    Schema Version                        : 2
+    Validity Period                       : 1 year
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_DIRECTORY_GUID, SUBJECT_ALT_REQUIRE_DNS
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, PUBLISH_TO_DS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Directory Service Email Replication
+    mspki-certificate-application-policy  : Directory Service Email Replication
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Controllers       S-1-5-21-1045809509-3006658589-2426055941-516
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+                                      MIST\Enterprise Read-only Domain ControllersS-1-5-21-1045809509-3006658589-2426055941-498
+                                      NT AUTHORITY\ENTERPRISE DOMAIN CONTROLLERSS-1-5-9
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : KerberosAuthentication
+    Schema Version                        : 2
+    Validity Period                       : 1 year
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_DOMAIN_DNS, SUBJECT_ALT_REQUIRE_DNS
+    mspki-enrollment-flag                 : AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, KDC Authentication, Server Authentication, Smart Card Logon
+    mspki-certificate-application-policy  : Client Authentication, KDC Authentication, Server Authentication, Smart Card Logon
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Controllers       S-1-5-21-1045809509-3006658589-2426055941-516
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+                                      MIST\Enterprise Read-only Domain ControllersS-1-5-21-1045809509-3006658589-2426055941-498
+                                      NT AUTHORITY\ENTERPRISE DOMAIN CONTROLLERSS-1-5-9
+      Object Control Permissions
+        Owner                       : MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteOwner Principals       : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : UserAuthentication
+    Schema Version                        : 2
+    Validity Period                       : 99 years
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_UPN, SUBJECT_ALT_REQUIRE_EMAIL, SUBJECT_REQUIRE_EMAIL, SUBJECT_REQUIRE_DIRECTORY_PATH
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, PUBLISH_TO_DS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Encrypting File System, Secure Email
+    mspki-certificate-application-policy  : Client Authentication, Encrypting File System, Secure Email
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Users             S-1-5-21-1045809509-3006658589-2426055941-513
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+        WriteOwner Principals       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : ComputerAuthentication
+    Schema Version                        : 2
+    Validity Period                       : 1 year
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_DNS
+    mspki-enrollment-flag                 : AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Server Authentication
+    mspki-certificate-application-policy  : Client Authentication, Server Authentication
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Domain Computers         S-1-5-21-1045809509-3006658589-2426055941-515
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+        WriteOwner Principals       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : ManagerAuthentication
+    Schema Version                        : 2
+    Validity Period                       : 99 years
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_UPN, SUBJECT_REQUIRE_COMMON_NAME
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, PUBLISH_TO_DS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Encrypting File System, Secure Email, Server Authentication
+    mspki-certificate-application-policy  : Client Authentication, Encrypting File System, Secure Email, Server Authentication
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\Certificate Services     S-1-5-21-1045809509-3006658589-2426055941-1132
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+        WriteOwner Principals       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+    CA Name                               : DC01.mist.htb\mist-DC01-CA
+    Template Name                         : BackupSvcAuthentication
+    Schema Version                        : 2
+    Validity Period                       : 99 years
+    Renewal Period                        : 6 weeks
+    msPKI-Certificate-Name-Flag          : SUBJECT_ALT_REQUIRE_UPN, SUBJECT_REQUIRE_COMMON_NAME
+    mspki-enrollment-flag                 : INCLUDE_SYMMETRIC_ALGORITHMS, PUBLISH_TO_DS, AUTO_ENROLLMENT
+    Authorized Signatures Required        : 0
+    pkiextendedkeyusage                   : Client Authentication, Encrypting File System, Secure Email
+    mspki-certificate-application-policy  : Client Authentication, Encrypting File System, Secure Email
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights           : MIST\CA Backup                S-1-5-21-1045809509-3006658589-2426055941-1134
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+      Object Control Permissions
+        Owner                       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+        WriteOwner Principals       : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteDacl Principals        : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+        WriteProperty Principals    : MIST\Administrator            S-1-5-21-1045809509-3006658589-2426055941-500
+                                      MIST\Domain Admins            S-1-5-21-1045809509-3006658589-2426055941-512
+                                      MIST\Enterprise Admins        S-1-5-21-1045809509-3006658589-2426055941-519
+
+
+
+Certify completed in 00:00:09.9699584
+
+```
+
 
 El análisis de las plantillas disponibles mediante Certify.exe reveló que la plantilla User admite el uso de
 Client Authentication, lo que la convierte en un vector idóneo para la obtención de un certificado válido
