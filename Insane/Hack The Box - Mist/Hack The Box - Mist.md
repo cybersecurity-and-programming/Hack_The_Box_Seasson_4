@@ -54,7 +54,9 @@ Apache 2.4.52 desplegado sobre un entorno Windows. La enumeración pasiva y acti
 permite identificar la presencia del CMS Pluck 4.7.18, cuya superficie de ataque ha sido objeto de diversas
 investigaciones de seguridad en los últimos años.
 
-Web Application
+<img src="assets/3.png">
+
+<p align="center"><strong><u>Web Application</u></strong></p>
 
 Durante  la  revisión  de  vulnerabilidades  asociadas  a  esta  versión  específica  del  CMS,  destaca  el
 CVE-2023-50564, una falla crítica que afecta al mecanismo de instalación de módulos. Esta vulnerabilidad
@@ -78,17 +80,19 @@ Siguiendo la metodología descrita en la prueba de concepto del repositorio, se 
 directorio /data/settings/modules/albums/ en busca de artefactos potencialmente útiles para la escalada.
 Entre los archivos disponibles, admin_backup.php resultó especialmente llamativo.
 
-24 de febrero de 2025
-
-3
+<img src="assets/4.png">
 
 Mediante el abuso del  endpoint vulnerable, fue  posible  recuperar su  contenido íntegro, exponiendo una
 cadena extensa con apariencia de hash criptográfico. Dado que el nombre del archivo sugiere su relación
 con configuraciones administrativas, se planteó la hipótesis de que dicho valor pudiera corresponder a una
 credencial protegida.
 
+<img src="assets/5.png">
+
 El análisis preliminar mediante hash-identifier permitió clasificarlo como un hash SHA-512, abriendo la
 puerta a un proceso de cracking orientado a obtener acceso autenticado al panel de administración.
+
+<img src="assets/6.png">
 
 Una  vez  recuperado  el  hash  SHA-512  procedente  del  archivo  admin_backup.php,  se  procedió  a  su
 sometimiento a un proceso de cracking mediante Hashcat, empleando como diccionario la archiconocida
@@ -96,15 +100,15 @@ wordlist rockyou.txt. La operación resultó exitosa, revelando que el valor ori
 lexypoo97, lo que confirma que el archivo contenía efectivamente una credencial administrativa en formato
 cifrado.
 
-24 de febrero de 2025
-
-4
+<img src="assets/7.png">
 
 Con esta información, se accedió al endpoint /login.php, donde el CMS Pluck presenta un mecanismo de
 autenticación extremadamente simplificado, basado exclusivamente en la introducción de una contraseña
 sin necesidad de usuario asociado. Tras suministrar la credencial recuperada, se obtuvo acceso pleno a la
 interfaz administrativa del gestor de contenidos, habilitando así la posibilidad de explotar vectores que
 requieren autenticación previa.
+
+<img src="assets/8.png">
 
 En este punto, resultó pertinente retomar el CVE-2023-50564, cuya explotación depende precisamente de
 disponer de privilegios administrativos. Esta vulnerabilidad afecta al subsistema de instalación de módulos,
@@ -114,22 +118,26 @@ shell  en  PHP  encapsulada  dentro  de  un  directorio—  es  posible  inducir
 arbitrarios en el directorio /data/modules, lo que deriva en una ejecución remota de código plenamente
 funcional.
 
+<img src="assets/9.png">
+
 Para materializar este vector, se generó una web shell en PHP y se empaquetó dentro de un archivo shell.zip,
 respetando la estructura esperada por el instalador de módulos. Desde la consola administrativa, se navegó
 a Options → Manage modules → Install a module…, donde se procedió a cargar el paquete malicioso.
 
-24 de febrero de 2025
-
-5
+<img src="assets/10.png">
 
 El  CMS,  al  no  implementar  ningún  mecanismo  de  validación  robusto,  descomprimió  el  contenido  sin
 restricciones, creando el directorio /data/modules/shell/ y depositando en su interior el archivo shell.php.
+
+<img src="assets/11.png">
 
 Con el acceso a la interfaz administrativa y la capacidad de desplegar archivos arbitrarios en el servidor, el
 siguiente objetivo consistió en obtener una reverse shell plenamente interactiva a través de la web shell
 previamente implantada. Para ello, se optó por utilizar un payload en PowerShell, dado que el entorno
 subyacente  es Windows  y  este  lenguaje  proporciona  un  canal  nativo,  versátil  y  altamente  flexible  para
 establecer comunicaciones inversas.
+
+<img src="assets/12.png">
 
 No obstante, antes de proceder, resultaba imprescindible considerar que el sistema víctima mantenía activas
 las protecciones del Antimalware Scan Interface (AMSI), un componente de seguridad diseñado para
@@ -147,9 +155,7 @@ Este proceso permitió consolidar un canal remoto interactivo, habilitando la fa
 proporcionando un punto de apoyo privilegiado para la enumeración del sistema, la elevación de privilegios
 y la consolidación del acceso.
 
-24 de febrero de 2025
-
-6
+<img src="assets/13.png">
 
 Shell as Brandon.Keywarp
 
