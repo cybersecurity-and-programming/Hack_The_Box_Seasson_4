@@ -142,7 +142,7 @@ SID               : S-1-5-21-1045809509-3006658589-2426055941-500
         kerberos :
          * Username : Administrator
          * Domain   : mist.htb
-         * Password : FrXXXXXXXXXXXXXXXXXXXXXXXXX123!
+         * Password : FrXXXXXXXXXXXXXXXXXXXXXXXXX123! <----------Password administrator
         ssp :
         credman :
         cloudap :
