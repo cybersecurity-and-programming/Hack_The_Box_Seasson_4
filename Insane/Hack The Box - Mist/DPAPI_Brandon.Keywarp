@@ -216,7 +216,7 @@ Decrypting Credential:
   Comment        : (null)
   TargetAlias    : (null)
   UserName       : MIST\Brandon.Keywarp
-  CredentialBlob : CoolFlipdColossalTitan1
+  CredentialBlob : CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1
   Attributes     : 0
 
 mimikatz(commandline) # exit
