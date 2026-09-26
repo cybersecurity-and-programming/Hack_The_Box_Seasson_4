@@ -983,7 +983,7 @@ el tráfico entrante en dicho puerto hacia el puerto 80 de nuestra máquina atac
 PetitPotam contra MS01@9999/whatever, la autenticación NTLM generada por MS01 será reenviada a
 nuestro listener, permitiendo su posterior retransmisión hacia el controlador de dominio.
 
-<img src="assets/34.png">
+<img src="assets/34.jpg">
 
 Para  implementar  esta  redirección,  se  configuró  una  regla  de  port  forwarding  a  través  del  túnel
 previamente  establecido  con  Chisel,  asegurando  que  el  tráfico WebDAV  originado  en  MS01  alcanzara
